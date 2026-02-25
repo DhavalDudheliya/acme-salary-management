@@ -31,4 +31,4 @@ coverage/
 # TypeScript cache
 *.tsbuildinfo
 
-/src/generated/prisma
+/generated/prisma

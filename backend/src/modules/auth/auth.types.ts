@@ -12,6 +12,7 @@ import { z } from "zod";
 import {
   registerSchema,
   loginSchema,
+  lookupDomainSchema,
   refreshTokenSchema,
 } from "./auth.validation.js";
 
@@ -20,6 +21,9 @@ export type RegisterBody = z.infer<typeof registerSchema>;
 
 /** Inferred from loginSchema */
 export type LoginBody = z.infer<typeof loginSchema>;
+
+/** Inferred from lookupDomainSchema */
+export type LookupDomainBody = z.infer<typeof lookupDomainSchema>;
 
 /** Inferred from refreshTokenSchema */
 export type RefreshTokenBody = z.infer<typeof refreshTokenSchema>;

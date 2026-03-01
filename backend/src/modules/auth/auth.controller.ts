@@ -18,10 +18,12 @@ import {
   loginUser,
   refreshUserToken,
   getUserProfile,
+  lookupUserDomain,
 } from "./auth.service.js";
 import {
   registerSchema,
   loginSchema,
+  lookupDomainSchema,
   refreshTokenSchema,
 } from "./auth.validation.js";
 import { AuthenticatedRequest } from "./auth.types.js";
@@ -41,7 +43,7 @@ function formatZodErrors(error: import("zod").ZodError): string[] {
  * Validates input, then delegates to registerUser service.
  *
  * Request body: RegisterBody (email, firstName, lastName, phone, companyName, password)
- * Response 201: { message, domainSlug }
+ * Response 201: { message, subdomain }
  * Response 400: { errors: string[] } — validation errors
  * Response 409: { error } — email or domain already exists
  */
@@ -69,7 +71,7 @@ export async function register(req: Request, res: Response): Promise<void> {
  * On success, redirects to the frontend login page of their workspace.
  *
  * Query params: token (required)
- * Response 302: Redirect to {FRONTEND_URL}/{domainSlug}/login?verified=true
+ * Response 302: Redirect to {protocol}://{subdomain}.{FRONTEND_DOMAIN}/login?verified=true
  * Response 400: { error } — invalid or expired token
  */
 export async function verifyEmail(req: Request, res: Response): Promise<void> {
@@ -81,10 +83,13 @@ export async function verifyEmail(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // Verify the token and get the user's domain slug for redirect
+    // Verify the token and get the user's domain subdomain for redirect
     const result = await verifyUserEmail(token);
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    res.redirect(`${frontendUrl}/${result.domainSlug}/login?verified=true`);
+    const frontendDomain = process.env.FRONTEND_DOMAIN || "localhost:3000";
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    res.redirect(
+      `${protocol}://${result.subdomain}.${frontendDomain}/login?verified=true`
+    );
   } catch (error: any) {
     const status = error.status || 500;
     const message = error.message || "Internal server error";
@@ -181,6 +186,34 @@ export async function me(req: Request, res: Response): Promise<void> {
 
     const profile = await getUserProfile(authReq.user.userId);
     res.status(200).json(profile);
+  } catch (error: any) {
+    const status = error.status || 500;
+    const message = error.message || "Internal server error";
+    res.status(status).json({ error: message });
+  }
+}
+
+/**
+ * POST /api/auth/lookup-domain
+ *
+ * Looks up the workspace subdomain associated with an email address.
+ * Used for the "Find Your Workspace" portal login flow in multi-tenant environments.
+ *
+ * Request body: LookupDomainBody (email)
+ * Response 200: { subdomain }
+ * Response 400: { errors: string[] } — validation errors
+ * Response 404: { error } — email not found
+ */
+export async function lookupDomain(req: Request, res: Response): Promise<void> {
+  try {
+    const result = lookupDomainSchema.safeParse(req.body);
+    if (!result.success) {
+      res.status(400).json({ errors: formatZodErrors(result.error) });
+      return;
+    }
+
+    const data = await lookupUserDomain(result.data.email);
+    res.status(200).json(data);
   } catch (error: any) {
     const status = error.status || 500;
     const message = error.message || "Internal server error";

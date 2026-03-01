@@ -22,7 +22,7 @@ import {
   generateVerificationToken,
   getVerificationExpiry,
 } from "../../utils/token.js";
-import { generateSlug } from "../../utils/slug.js";
+import { generateSubdomain } from "../../utils/subdomain.js";
 import { sendVerificationEmail } from "../../services/email.service.js";
 import { RegisterBody, LoginBody } from "./auth.types.js";
 import logger from "../../lib/logger.js";
@@ -32,14 +32,14 @@ import logger from "../../lib/logger.js";
  *
  * Flow:
  * 1. Check email uniqueness
- * 2. Generate a URL slug from the company name and check uniqueness
+ * 2. Generate a URL subdomain from the company name and check uniqueness
  * 3. Hash the password with bcrypt
  * 4. Create Domain + User in a database transaction (atomic)
  * 5. Send verification email asynchronously (non-blocking)
  *
  * @param data - Registration form data (email, name, phone, company, password)
- * @returns Success message and the created workspace slug
- * @throws 409 if email or domain slug already exists
+ * @returns Success message and the created workspace subdomain
+ * @throws 409 if email or domain subdomain already exists
  */
 export async function registerUser(data: RegisterBody) {
   const { email, firstName, lastName, phone, companyName, password } = data;
@@ -50,9 +50,11 @@ export async function registerUser(data: RegisterBody) {
     throw { status: 409, message: "An account with this email already exists" };
   }
 
-  // 2. Generate the workspace slug from company name and check uniqueness
-  const slug = generateSlug(companyName);
-  const existingDomain = await prisma.domain.findUnique({ where: { slug } });
+  // 2. Generate the workspace subdomain from company name and check uniqueness
+  const subdomain = generateSubdomain(companyName);
+  const existingDomain = await prisma.domain.findUnique({
+    where: { subdomain },
+  });
   if (existingDomain) {
     throw {
       status: 409,
@@ -73,7 +75,7 @@ export async function registerUser(data: RegisterBody) {
   const result = await prisma.$transaction(async (tx) => {
     const domain = await tx.domain.create({
       data: {
-        slug,
+        subdomain,
         company: companyName,
       },
     });
@@ -96,14 +98,14 @@ export async function registerUser(data: RegisterBody) {
 
   // 6. Send the verification email in the background (fire-and-forget)
   //    Failures are logged but don't block the registration response
-  sendVerificationEmail(email, emailVerifyToken, slug).catch((err) => {
+  sendVerificationEmail(email, emailVerifyToken, subdomain).catch((err) => {
     logger.error({ err }, "Failed to send verification email");
   });
 
   return {
     message:
       "Registration successful! Please check your email to verify your account.",
-    domainSlug: result.domain.slug,
+    subdomain: result.domain.subdomain,
   };
 }
 
@@ -116,7 +118,7 @@ export async function registerUser(data: RegisterBody) {
  * 3. Mark the email as verified and clear the token fields
  *
  * @param token - The verification token from the email link's query parameter
- * @returns The user's domain slug (used for redirecting to login page)
+ * @returns The user's domain subdomain (used for redirecting to login page)
  * @throws 400 if the token is invalid or expired
  */
 export async function verifyUserEmail(token: string) {
@@ -148,7 +150,7 @@ export async function verifyUserEmail(token: string) {
     },
   });
 
-  return { domainSlug: user.domain.slug };
+  return { subdomain: user.domain.subdomain };
 }
 
 /**
@@ -225,7 +227,7 @@ export async function loginUser(data: LoginBody) {
       role: user.role,
       domain: {
         id: user.domain.id,
-        slug: user.domain.slug,
+        subdomain: user.domain.subdomain,
         company: user.domain.company,
       },
     },
@@ -302,8 +304,29 @@ export async function getUserProfile(userId: string) {
     role: user.role,
     domain: {
       id: user.domain.id,
-      slug: user.domain.slug,
+      subdomain: user.domain.subdomain,
       company: user.domain.company,
     },
   };
+}
+
+/**
+ * Look up a user's workspace subdomain by their email.
+ * This supports the "Find Your Workspace" public login flow.
+ *
+ * @param email - The user's registered email address
+ * @returns The user's workspace subdomain
+ * @throws 404 if no account exists with this email
+ */
+export async function lookupUserDomain(email: string) {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { domain: true },
+  });
+
+  if (!user) {
+    throw { status: 404, message: "No account found with this email" };
+  }
+
+  return { subdomain: user.domain.subdomain };
 }

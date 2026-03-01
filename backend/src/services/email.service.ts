@@ -39,12 +39,12 @@ const transporter = nodemailer.createTransport({
  *
  * @param to - Recipient email address
  * @param token - The unique verification token (stored in the User record)
- * @param domainSlug - The workspace slug to display in the email
+ * @param subdomain - The workspace subdomain to display in the email
  */
 export async function sendVerificationEmail(
   to: string,
   token: string,
-  domainSlug: string
+  subdomain: string
 ): Promise<void> {
   // Build the full verification URL pointing to the backend endpoint
   const appUrl = process.env.APP_URL || "http://localhost:5000";
@@ -62,7 +62,7 @@ export async function sendVerificationEmail(
         <div style="background: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
           <h2 style="color: #1a1a2e; margin-top: 0;">Welcome aboard! 🎉</h2>
           <p style="color: #4a4a68; font-size: 16px; line-height: 1.6;">
-            Thank you for registering your workspace <strong>${domainSlug}</strong> on SupportHub.
+            Thank you for registering your workspace <strong>${subdomain}</strong> on SupportHub.
             Please verify your email address to get started.
           </p>
           <div style="text-align: center; margin: 32px 0;">

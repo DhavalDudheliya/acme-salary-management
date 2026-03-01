@@ -40,7 +40,7 @@ model User {
 /// The slug is derived from the company name and used for tenant routing.
 model Domain {
   id        String   @id @default(uuid())  /// Primary key — UUID
-  slug      String   @unique               /// URL-safe identifier, e.g. "acme-corp"
+  subdomain String   @unique               /// URL-safe subdomain identifier, e.g. "acmecorp"
   company   String                         /// Original company name provided at registration
   users     User[]                         /// All users belonging to this workspace
   createdAt DateTime @default(now())

@@ -20,6 +20,7 @@ import {
   login,
   refreshToken,
   me,
+  lookupDomain,
 } from "./auth.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 
@@ -29,6 +30,7 @@ const router: IRouter = Router();
 router.post("/register", register);
 router.get("/verify-email", verifyEmail);
 router.post("/login", login);
+router.post("/lookup-domain", lookupDomain);
 router.post("/refresh-token", refreshToken);
 
 // --- Protected Routes ---

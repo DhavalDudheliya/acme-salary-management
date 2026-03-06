@@ -3,8 +3,8 @@
 import Link from "next/link";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Mail, Phone, User } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { ArrowRight, Mail, User } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@supporthub/ui/components/button";
 import {
@@ -19,6 +19,7 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@supporthub/ui/components/input-group";
+import { PhoneInput } from "@supporthub/ui/components/phone-input";
 
 import { personalInfoSchema } from "@/lib/validations/auth.schema";
 
@@ -47,6 +48,7 @@ export default function PersonalInfoStep({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<PersonalInfoValues>({
     resolver: zodResolver(personalInfoSchema),
@@ -128,22 +130,24 @@ export default function PersonalInfoStep({
           <FieldError errors={[errors.email]} />
         </Field>
 
+        {/* Phone field uses Controller instead of register because
+            PhoneInput manages its own value via onChange/value props */}
         <Field>
           <FieldLabel htmlFor="phone">Phone number (optional)</FieldLabel>
-          <InputGroup className="h-10">
-            <InputGroupAddon>
-              <InputGroupText>
-                <Phone aria-hidden="true" />
-              </InputGroupText>
-            </InputGroupAddon>
-            <InputGroupInput
-              id="phone"
-              type="tel"
-              autoComplete="tel"
-              placeholder="+1 (555) 000-0000"
-              {...register("phone")}
-            />
-          </InputGroup>
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <PhoneInput
+                id="phone"
+                defaultCountry="US"
+                placeholder="(555) 000-0000"
+                value={field.value}
+                onChange={field.onChange}
+                aria-invalid={!!errors.phone}
+              />
+            )}
+          />
         </Field>
 
         <Button

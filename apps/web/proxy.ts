@@ -14,7 +14,7 @@ export const config = {
   ],
 };
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const url = req.nextUrl;
 
   // Get hostname of request (e.g. acmecorp.supporthub.com, acmecorp.localhost:3000)
@@ -60,9 +60,9 @@ export function middleware(req: NextRequest) {
   }
 
   // Rewrite to the tenant-specific routing folder, injecting the subdomain
-  // e.g., acmecorp.supporthub.com/login -> app/_tenant/login/page.tsx
+  // e.g., acmecorp.supporthub.com/login -> app/tenant/login/page.tsx
   // We attach the subdomain as a query param so the page can read it easily
-  const rewriteUrl = new URL(`/_tenant${path}`, req.url);
+  const rewriteUrl = new URL(`/tenant${path}`, req.url);
   // Add subdomain to query params for easy access in server components
   rewriteUrl.searchParams.set("subdomain", currentHost);
 

@@ -15,6 +15,7 @@ import { verifyRefreshToken } from "../../utils/jwt.js";
 import {
   registerUser,
   verifyUserEmail,
+  resendVerificationForEmail,
   loginUser,
   refreshUserToken,
   getUserProfile,
@@ -25,6 +26,7 @@ import {
   loginSchema,
   lookupDomainSchema,
   refreshTokenSchema,
+  resendVerificationSchema,
 } from "./auth.validation.js";
 import { AuthenticatedRequest } from "./auth.types.js";
 
@@ -90,6 +92,37 @@ export async function verifyEmail(req: Request, res: Response): Promise<void> {
     res.redirect(
       `${protocol}://${result.subdomain}.${frontendDomain}/login?verified=true`,
     );
+  } catch (error: any) {
+    const status = error.status || 500;
+    const message = error.message || "Internal server error";
+    res.status(status).json({ error: message });
+  }
+}
+
+/**
+ * POST /api/auth/resend-verification
+ *
+ * Resends the email verification link for an unverified account.
+ * Uses generic success messages to prevent email enumeration.
+ *
+ * Request body: { email }
+ * Response 200: { message }
+ * Response 400: { errors: string[] } — validation errors
+ * Response 429: { error } — rate limited
+ */
+export async function resendVerification(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const result = resendVerificationSchema.safeParse(req.body);
+    if (!result.success) {
+      res.status(400).json({ errors: formatZodErrors(result.error) });
+      return;
+    }
+
+    const data = await resendVerificationForEmail(result.data.email);
+    res.status(200).json(data);
   } catch (error: any) {
     const status = error.status || 500;
     const message = error.message || "Internal server error";

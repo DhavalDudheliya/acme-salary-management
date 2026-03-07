@@ -17,6 +17,7 @@ import { Router, type IRouter } from "express";
 import {
   register,
   verifyEmail,
+  resendVerification,
   login,
   refreshToken,
   me,
@@ -29,6 +30,7 @@ const router: IRouter = Router();
 // --- Public Routes ---
 router.post("/register", register);
 router.get("/verify-email", verifyEmail);
+router.post("/resend-verification", resendVerification);
 router.post("/login", login);
 router.post("/lookup-domain", lookupDomain);
 router.post("/refresh-token", refreshToken);

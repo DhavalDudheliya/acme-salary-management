@@ -154,6 +154,77 @@ export async function verifyUserEmail(token: string) {
 }
 
 /**
+ * Resend the email verification link for a user who hasn't verified yet.
+ *
+ * Flow:
+ * 1. Look up user by email (return generic success if not found — prevent enumeration)
+ * 2. Skip silently if already verified
+ * 3. Rate-limit: reject if the last token was issued less than 1 hour ago
+ * 4. Generate a fresh verification token and expiry
+ * 5. Update the user record and send the email
+ *
+ * @param email - The user's email address
+ * @returns Generic success message
+ * @throws 429 if the previous email was sent less than 1 hour ago
+ */
+export async function resendVerificationForEmail(email: string) {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { domain: true },
+  });
+
+  // Don't reveal whether the email exists — return a generic success
+  if (!user) {
+    return {
+      message:
+        "If an account with this email exists, a new verification link has been sent.",
+    };
+  }
+
+  // Already verified — nothing to do
+  if (user.isEmailVerified) {
+    return {
+      message:
+        "If an account with this email exists, a new verification link has been sent.",
+    };
+  }
+
+  // Rate-limit: if the existing token expires more than 23 hours from now,
+  // the last email was sent less than 1 hour ago
+  if (user.emailVerifyExpires) {
+    const twentyThreeHoursFromNow = new Date(Date.now() + 23 * 60 * 60 * 1000);
+    if (user.emailVerifyExpires > twentyThreeHoursFromNow) {
+      throw {
+        status: 429,
+        message:
+          "A verification email was sent recently. Please wait before requesting another.",
+      };
+    }
+  }
+
+  // Generate fresh token
+  const emailVerifyToken = generateVerificationToken();
+  const emailVerifyExpires = getVerificationExpiry();
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { emailVerifyToken, emailVerifyExpires },
+  });
+
+  // Fire-and-forget
+  sendVerificationEmail(email, emailVerifyToken, user.domain.subdomain).catch(
+    (err) => {
+      logger.error({ err }, "Failed to resend verification email");
+    },
+  );
+
+  return {
+    message:
+      "If an account with this email exists, a new verification link has been sent.",
+  };
+}
+
+/**
  * Authenticate a user with email and password.
  *
  * Flow:

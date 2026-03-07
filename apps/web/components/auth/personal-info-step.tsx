@@ -148,6 +148,7 @@ export default function PersonalInfoStep({
               />
             )}
           />
+          <FieldError errors={[errors.phone]} />
         </Field>
 
         <Button

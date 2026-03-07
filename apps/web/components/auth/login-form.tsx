@@ -5,9 +5,37 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, CheckCircle2, Loader2, Lock, Mail } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@supporthub/ui/components/alert";
+import { Button } from "@supporthub/ui/components/button";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@supporthub/ui/components/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@supporthub/ui/components/input-group";
 
 import { useAuth } from "@/lib/auth-context";
 import { authService } from "@/lib/services/auth.service";
@@ -18,9 +46,17 @@ type LoginValues = {
   password: string;
 };
 
+/**
+ * LoginForm - Tenant-scoped login form.
+ *
+ * Displayed on tenant subdomains (e.g. acme.supporthub.com/login).
+ * Derives the workspace name from the subdomain for display.
+ * Shows a verification success banner when redirected from email verification.
+ */
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [workspaceName, setWorkspaceName] = useState<string>("Your Workspace");
 
   const router = useRouter();
@@ -29,14 +65,15 @@ export default function LoginForm() {
   const subdomain = searchParams.get("subdomain");
   const { refreshUser } = useAuth();
 
+  // Derive a human-readable workspace name from the subdomain.
+  // Priority: searchParam > hostname extraction > fallback ("Your Workspace")
   useEffect(() => {
-    // Attempt to format the subdomain into a readable workspace name
-    // e.g., "acmecorp" -> "Acmecorp", or if they are on a real domain, extract it
     if (subdomain) {
       const formatted = subdomain.charAt(0).toUpperCase() + subdomain.slice(1);
       setWorkspaceName(formatted);
     } else if (typeof window !== "undefined") {
-      // Fallback if subdomain searchParam isn't working as expected
+      // Fallback: extract subdomain from the current hostname
+      // e.g. "acme.localhost:3000" -> "Acme"
       const host = window.location.hostname;
       const parts = host.split(".");
       if (
@@ -65,7 +102,7 @@ export default function LoginForm() {
 
     try {
       await authService.loginUser(data);
-      // Wait for auth context to hydrate with the new user data
+      // Refresh auth context so protected routes recognize the new session
       await refreshUser();
 
       toast.success("Signed in successfully");
@@ -84,141 +121,109 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="mb-8 text-center sm:text-left">
-        <h2 className="mb-2 text-3xl font-bold tracking-tight text-gray-900">
+        <h2 className="mb-2 text-3xl font-bold tracking-tight text-foreground">
           Sign in to {workspaceName}
         </h2>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-muted-foreground">
           Welcome back! Please enter your details.
         </p>
       </div>
 
       {isVerified && (
-        <div className="animate-in fade-in mb-6 rounded-md border border-green-200 bg-green-50 p-4 duration-300">
-          <div className="flex">
-            <div className="shrink-0">
-              <CheckCircle2
-                className="h-5 w-5 text-green-500"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">
-                Email verified!
-              </h3>
-              <div className="mt-2 text-sm text-green-700">
-                <p>
-                  Your email has been successfully verified. You can now sign
-                  in.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Alert className="mb-6 border-green-200 bg-green-50 text-green-800 dark:border-green-900/50 dark:bg-green-900/20 dark:text-green-300">
+          <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+          <AlertTitle>Email verified!</AlertTitle>
+          <AlertDescription className="text-green-700 dark:text-green-400/80">
+            Your email has been successfully verified. You can now sign in.
+          </AlertDescription>
+        </Alert>
       )}
 
       {apiError && (
-        <div className="animate-in fade-in mb-6 rounded-md border border-red-200 bg-red-50 p-4 duration-300">
-          <div className="flex">
-            <div className="shrink-0">
-              <AlertCircle
-                className="h-5 w-5 text-red-500"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                Sign in failed
-              </h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{apiError}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Sign in failed</AlertTitle>
+          <AlertDescription>{apiError}</AlertDescription>
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div>
-          <label
-            htmlFor="email"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <div className="relative mt-1 rounded-md shadow-sm">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </div>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              className={`block w-full rounded-md border ${
-                errors.email
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-              } py-3 pr-3 pl-10 shadow-sm focus:ring-1 focus:outline-none sm:text-sm`}
-              placeholder="you@company.com"
-              {...register("email")}
-            />
-          </div>
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-          )}
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <InputGroup className="h-10">
+              <InputGroupAddon>
+                <InputGroupText>
+                  <Mail aria-hidden="true" />
+                </InputGroupText>
+              </InputGroupAddon>
+              <InputGroupInput
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                aria-invalid={!!errors.email}
+                placeholder="you@company.com"
+                {...register("email")}
+              />
+            </InputGroup>
+            <FieldError errors={[errors.email]} />
+          </Field>
 
-        <div>
-          <div className="mb-1 flex items-center justify-between">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <div className="text-sm">
+          <Field>
+            <div className="flex items-center justify-between">
+              <FieldLabel htmlFor="password">Password</FieldLabel>
               <a
                 href="#"
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
+                className="text-sm font-semibold text-primary hover:text-primary/80"
               >
                 Forgot password?
               </a>
             </div>
-          </div>
-          <div className="relative mt-1 rounded-md shadow-sm">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </div>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              className={`block w-full rounded-md border ${
-                errors.password
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-              } py-3 pr-3 pl-10 shadow-sm focus:ring-1 focus:outline-none sm:text-sm`}
-              placeholder="••••••••"
-              {...register("password")}
-            />
-          </div>
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
+            <InputGroup className="h-10">
+              <InputGroupAddon>
+                <InputGroupText>
+                  <Lock aria-hidden="true" />
+                </InputGroupText>
+              </InputGroupAddon>
+              <InputGroupInput
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                required
+                aria-invalid={!!errors.password}
+                placeholder="••••••••"
+                {...register("password")}
+              />
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+            <FieldError errors={[errors.password]} />
+          </Field>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="text-md flex w-full items-center justify-center gap-2 rounded-md border border-transparent bg-indigo-600 px-4 py-3 font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
-        </button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="h-10 w-full text-base"
+          >
+            {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+            Sign In
+          </Button>
+        </FieldGroup>
       </form>
     </div>
   );

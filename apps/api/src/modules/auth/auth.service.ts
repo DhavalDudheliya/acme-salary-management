@@ -5,7 +5,7 @@
  * handlers thin. Each function performs database operations, token management,
  * and error handling for a specific auth flow:
  *
- * - registerUser: Creates a new workspace (Domain) and user account
+ * - registerUser: Creates a new workspace (Workspace) and user account
  * - verifyUserEmail: Validates the email verification token
  * - loginUser: Authenticates credentials and issues JWT tokens
  * - refreshUserToken: Implements token rotation for refresh tokens
@@ -34,12 +34,12 @@ import logger from "../../lib/logger.js";
  * 1. Check email uniqueness
  * 2. Generate a URL subdomain from the company name and check uniqueness
  * 3. Hash the password with bcrypt
- * 4. Create Domain + User in a database transaction (atomic)
+ * 4. Create Workspace + User in a database transaction (atomic)
  * 5. Send verification email asynchronously (non-blocking)
  *
  * @param data - Registration form data (email, name, phone, company, password)
  * @returns Success message and the created workspace subdomain
- * @throws 409 if email or domain subdomain already exists
+ * @throws 409 if email or workspace subdomain already exists
  */
 export async function registerUser(data: RegisterBody) {
   const { email, firstName, lastName, phone, companyName, password } = data;
@@ -52,10 +52,10 @@ export async function registerUser(data: RegisterBody) {
 
   // 2. Generate the workspace subdomain from company name and check uniqueness
   const subdomain = generateSubdomain(companyName);
-  const existingDomain = await prisma.domain.findUnique({
+  const existingWorkspace = await prisma.workspace.findUnique({
     where: { subdomain },
   });
-  if (existingDomain) {
+  if (existingWorkspace) {
     throw {
       status: 409,
       message:
@@ -70,10 +70,10 @@ export async function registerUser(data: RegisterBody) {
   const emailVerifyToken = generateVerificationToken();
   const emailVerifyExpires = getVerificationExpiry();
 
-  // 5. Create Domain and User atomically using a Prisma transaction
+  // 5. Create Workspace and User atomically using a Prisma transaction
   //    If either creation fails, both are rolled back
   const result = await prisma.$transaction(async (tx) => {
-    const domain = await tx.domain.create({
+    const workspace = await tx.workspace.create({
       data: {
         subdomain,
         company: companyName,
@@ -89,11 +89,11 @@ export async function registerUser(data: RegisterBody) {
         passwordHash,
         emailVerifyToken,
         emailVerifyExpires,
-        domainId: domain.id,
+        workspaceId: workspace.id,
       },
     });
 
-    return { user, domain };
+    return { user, workspace };
   });
 
   // 6. Send the verification email in the background (fire-and-forget)
@@ -105,7 +105,7 @@ export async function registerUser(data: RegisterBody) {
   return {
     message:
       "Registration successful! Please check your email to verify your account.",
-    subdomain: result.domain.subdomain,
+    subdomain: result.workspace.subdomain,
   };
 }
 
@@ -118,14 +118,14 @@ export async function registerUser(data: RegisterBody) {
  * 3. Mark the email as verified and clear the token fields
  *
  * @param token - The verification token from the email link's query parameter
- * @returns The user's domain subdomain (used for redirecting to login page)
+ * @returns The user's workspace subdomain (used for redirecting to login page)
  * @throws 400 if the token is invalid or expired
  */
 export async function verifyUserEmail(token: string) {
   // Find user by the unique verification token
   const user = await prisma.user.findUnique({
     where: { emailVerifyToken: token },
-    include: { domain: true },
+    include: { workspace: true },
   });
 
   if (!user) {
@@ -150,7 +150,7 @@ export async function verifyUserEmail(token: string) {
     },
   });
 
-  return { subdomain: user.domain.subdomain };
+  return { subdomain: user.workspace.subdomain };
 }
 
 /**
@@ -170,7 +170,7 @@ export async function verifyUserEmail(token: string) {
 export async function resendVerificationForEmail(email: string) {
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { domain: true },
+    include: { workspace: true },
   });
 
   // Don't reveal whether the email exists — return a generic success
@@ -212,11 +212,13 @@ export async function resendVerificationForEmail(email: string) {
   });
 
   // Fire-and-forget
-  sendVerificationEmail(email, emailVerifyToken, user.domain.subdomain).catch(
-    (err) => {
-      logger.error({ err }, "Failed to resend verification email");
-    },
-  );
+  sendVerificationEmail(
+    email,
+    emailVerifyToken,
+    user.workspace.subdomain,
+  ).catch((err) => {
+    logger.error({ err }, "Failed to resend verification email");
+  });
 
   return {
     message:
@@ -245,7 +247,7 @@ export async function loginUser(data: LoginBody) {
   // Look up user with their domain info
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { domain: true },
+    include: { workspace: true },
   });
 
   // Use a generic error message to prevent email enumeration
@@ -267,11 +269,10 @@ export async function loginUser(data: LoginBody) {
     throw { status: 401, message: "Invalid email or password" };
   }
 
-  // Build the JWT payload with essential user identity data
   const tokenPayload = {
     userId: user.id,
     email: user.email,
-    domainId: user.domainId,
+    workspaceId: user.workspaceId,
     role: user.role,
   };
 
@@ -296,10 +297,10 @@ export async function loginUser(data: LoginBody) {
       lastName: user.lastName,
       phone: user.phone,
       role: user.role,
-      domain: {
-        id: user.domain.id,
-        subdomain: user.domain.subdomain,
-        company: user.domain.company,
+      workspace: {
+        id: user.workspace.id,
+        subdomain: user.workspace.subdomain,
+        company: user.workspace.company,
       },
     },
   };
@@ -318,7 +319,7 @@ export async function refreshUserToken(refreshToken: string) {
   // Find the user who holds this refresh token
   const user = await prisma.user.findFirst({
     where: { refreshToken },
-    include: { domain: true },
+    include: { workspace: true },
   });
 
   if (!user) {
@@ -328,7 +329,7 @@ export async function refreshUserToken(refreshToken: string) {
   const tokenPayload = {
     userId: user.id,
     email: user.email,
-    domainId: user.domainId,
+    workspaceId: user.workspaceId,
     role: user.role,
   };
 
@@ -349,17 +350,17 @@ export async function refreshUserToken(refreshToken: string) {
 }
 
 /**
- * Fetch the authenticated user's full profile including domain info.
+ * Fetch the authenticated user's full profile including workspace info.
  * Used by the GET /api/auth/me endpoint (protected route).
  *
  * @param userId - The UUID of the authenticated user (from JWT payload)
- * @returns User profile with domain details (no sensitive fields)
+ * @returns User profile with workspace details (no sensitive fields)
  * @throws 404 if the user is not found
  */
 export async function getUserProfile(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { domain: true },
+    include: { workspace: true },
   });
 
   if (!user) {
@@ -373,10 +374,10 @@ export async function getUserProfile(userId: string) {
     lastName: user.lastName,
     phone: user.phone,
     role: user.role,
-    domain: {
-      id: user.domain.id,
-      subdomain: user.domain.subdomain,
-      company: user.domain.company,
+    workspace: {
+      id: user.workspace.id,
+      subdomain: user.workspace.subdomain,
+      company: user.workspace.company,
     },
   };
 }
@@ -389,15 +390,15 @@ export async function getUserProfile(userId: string) {
  * @returns The user's workspace subdomain
  * @throws 404 if no account exists with this email
  */
-export async function lookupUserDomain(email: string) {
+export async function lookupUserWorkspace(email: string) {
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { domain: true },
+    include: { workspace: true },
   });
 
   if (!user) {
     throw { status: 404, message: "No account found with this email" };
   }
 
-  return { subdomain: user.domain.subdomain };
+  return { subdomain: user.workspace.subdomain };
 }

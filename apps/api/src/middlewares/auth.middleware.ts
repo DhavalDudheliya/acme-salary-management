@@ -48,7 +48,7 @@ export function authMiddleware(
     (req as AuthenticatedRequest).user = {
       userId: payload.userId,
       email: payload.email,
-      domainId: payload.domainId,
+      workspaceId: payload.workspaceId,
       role: payload.role,
     };
 

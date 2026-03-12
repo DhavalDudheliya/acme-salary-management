@@ -19,7 +19,7 @@ export interface UserProfileProfile {
   lastName: string;
   phone?: string;
   role: string;
-  domain: {
+  workspace: {
     id: string;
     subdomain: string;
     company: string;
@@ -40,8 +40,8 @@ export const authService = {
   /**
    * Look up a workspace subdomain by user email
    */
-  async lookupDomain(email: string): Promise<{ subdomain: string }> {
-    const response = await api.post("/auth/lookup-domain", { email });
+  async lookupWorkspace(email: string): Promise<{ subdomain: string }> {
+    const response = await api.post("/auth/lookup-workspace", { email });
     return response.data;
   },
 

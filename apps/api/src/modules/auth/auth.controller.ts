@@ -19,12 +19,12 @@ import {
   loginUser,
   refreshUserToken,
   getUserProfile,
-  lookupUserDomain,
+  lookupUserWorkspace,
 } from "./auth.service.js";
 import {
   registerSchema,
   loginSchema,
-  lookupDomainSchema,
+  lookupWorkspaceSchema,
   refreshTokenSchema,
   resendVerificationSchema,
 } from "./auth.validation.js";
@@ -41,13 +41,13 @@ function formatZodErrors(error: import("zod").ZodError): string[] {
 /**
  * POST /api/auth/register
  *
- * Registers a new user and creates their tenant workspace.
+ * Creates a new user and creates their tenant workspace.
  * Validates input, then delegates to registerUser service.
  *
  * Request body: RegisterBody (email, firstName, lastName, phone, companyName, password)
  * Response 201: { message, subdomain }
  * Response 400: { errors: string[] } — validation errors
- * Response 409: { error } — email or domain already exists
+ * Response 409: { error } — email or workspace already exists
  */
 export async function register(req: Request, res: Response): Promise<void> {
   try {
@@ -227,25 +227,28 @@ export async function me(req: Request, res: Response): Promise<void> {
 }
 
 /**
- * POST /api/auth/lookup-domain
+ * POST /api/auth/lookup-workspace
  *
  * Looks up the workspace subdomain associated with an email address.
  * Used for the "Find Your Workspace" portal login flow in multi-tenant environments.
  *
- * Request body: LookupDomainBody (email)
+ * Request body: LookupWorkspaceBody (email)
  * Response 200: { subdomain }
  * Response 400: { errors: string[] } — validation errors
  * Response 404: { error } — email not found
  */
-export async function lookupDomain(req: Request, res: Response): Promise<void> {
+export async function lookupWorkspace(
+  req: Request,
+  res: Response,
+): Promise<void> {
   try {
-    const result = lookupDomainSchema.safeParse(req.body);
+    const result = lookupWorkspaceSchema.safeParse(req.body);
     if (!result.success) {
       res.status(400).json({ errors: formatZodErrors(result.error) });
       return;
     }
 
-    const data = await lookupUserDomain(result.data.email);
+    const data = await lookupUserWorkspace(result.data.email);
     res.status(200).json(data);
   } catch (error: any) {
     const status = error.status || 500;

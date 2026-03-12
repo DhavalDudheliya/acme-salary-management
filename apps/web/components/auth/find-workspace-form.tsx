@@ -28,7 +28,7 @@ import {
 } from "@supporthub/ui/components/input-group";
 
 import { authService } from "@/lib/services/auth.service";
-import { lookupDomainSchema } from "@/lib/validations/auth.schema";
+import { lookupWorkspaceSchema } from "@/lib/validations/auth.schema";
 
 type LookupValues = {
   email: string;
@@ -51,7 +51,7 @@ export default function FindWorkspaceForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<LookupValues>({
-    resolver: zodResolver(lookupDomainSchema),
+    resolver: zodResolver(lookupWorkspaceSchema),
   });
 
   const onSubmit = async (data: LookupValues) => {
@@ -59,7 +59,7 @@ export default function FindWorkspaceForm() {
     setApiError(null);
 
     try {
-      const response = await authService.lookupDomain(data.email);
+      const response = await authService.lookupWorkspace(data.email);
 
       const subdomain = response.subdomain;
       const rootDomain =

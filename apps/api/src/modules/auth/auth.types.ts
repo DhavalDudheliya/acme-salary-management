@@ -12,7 +12,7 @@ import { z } from "zod";
 import {
   registerSchema,
   loginSchema,
-  lookupDomainSchema,
+  lookupWorkspaceSchema,
   refreshTokenSchema,
 } from "./auth.validation.js";
 
@@ -22,8 +22,8 @@ export type RegisterBody = z.infer<typeof registerSchema>;
 /** Inferred from loginSchema */
 export type LoginBody = z.infer<typeof loginSchema>;
 
-/** Inferred from lookupDomainSchema */
-export type LookupDomainBody = z.infer<typeof lookupDomainSchema>;
+/** Inferred from lookupWorkspaceSchema */
+export type LookupWorkspaceBody = z.infer<typeof lookupWorkspaceSchema>;
 
 /** Inferred from refreshTokenSchema */
 export type RefreshTokenBody = z.infer<typeof refreshTokenSchema>;
@@ -37,7 +37,7 @@ export interface AuthenticatedRequest extends Request {
   user?: {
     userId: string; // UUID of the authenticated user
     email: string; // User's email address
-    domainId: string; // UUID of the user's tenant workspace
+    workspaceId: string; // UUID of the user's tenant workspace
     role: string; // "ADMIN" or "AGENT"
   };
 }

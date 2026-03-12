@@ -56,12 +56,12 @@ export const loginSchema = z.object({
 });
 
 /**
- * POST /api/auth/lookup-domain
+ * POST /api/auth/lookup-workspace
  *
  * Rules:
  * - email: valid email format
  */
-export const lookupDomainSchema = z.object({
+export const lookupWorkspaceSchema = z.object({
   email: z.email("Invalid email format"),
 });
 

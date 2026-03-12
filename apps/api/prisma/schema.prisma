@@ -3,7 +3,7 @@
  *
  * Defines the core data models for the authentication and multi-tenant system.
  * - User: Stores user credentials, profile, and email verification state
- * - Domain: Represents a tenant workspace (one per company registration)
+ * - Workspace: Represents a tenant workspace (one per company registration)
  * - Role: Enum for role-based access control (ADMIN / AGENT)
  */
 
@@ -17,7 +17,7 @@ datasource db {
 }
 
 /// Registered user of the platform.
-/// Each user belongs to exactly one Domain (tenant workspace).
+/// Each user belongs to exactly one Workspace (tenant workspace).
 model User {
   id                 String    @id @default(uuid())  /// Primary key — UUID for multi-tenant safety
   email              String    @unique               /// Login identifier — must be globally unique
@@ -30,15 +30,15 @@ model User {
   emailVerifyExpires DateTime?                       /// Token expiry — 24 hours from registration
   refreshToken       String?                         /// Current refresh token for token rotation
   role               Role      @default(ADMIN)       /// ADMIN for the registering user; AGENT for invitees
-  domainId           String                          /// FK to the tenant workspace
-  domain             Domain    @relation(fields: [domainId], references: [id])
+  workspaceId        String                          /// FK to the tenant workspace
+  workspace          Workspace @relation(fields: [workspaceId], references: [id])
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 }
 
 /// Tenant workspace created during registration.
 /// The slug is derived from the company name and used for tenant routing.
-model Domain {
+model Workspace {
   id        String   @id @default(uuid())  /// Primary key — UUID
   subdomain String   @unique               /// URL-safe subdomain identifier, e.g. "acmecorp"
   company   String                         /// Original company name provided at registration

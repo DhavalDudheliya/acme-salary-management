@@ -6,10 +6,8 @@ import { setAccessToken, setRefreshToken } from "../token";
 export interface AuthResponse {
   message: string;
   subdomain?: string;
-  tokens?: {
-    accessToken: string;
-    refreshToken: string;
-  };
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface UserProfileProfile {
@@ -52,9 +50,9 @@ export const authService = {
     const response = await api.post("/auth/login", data);
 
     // If login is successful, store tokens right away
-    if (response.data.tokens) {
-      setAccessToken(response.data.tokens.accessToken);
-      setRefreshToken(response.data.tokens.refreshToken);
+    if (response.data.accessToken && response.data.refreshToken) {
+      setAccessToken(response.data.accessToken);
+      setRefreshToken(response.data.refreshToken);
     }
 
     return response.data;

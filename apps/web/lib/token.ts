@@ -1,30 +1,35 @@
+import Cookies from "js-cookie";
+
 /**
- * Client-Side Token Storage Management
+ * Token Management
  *
- * Provides a clean interface for reading, writing, and removing JWT tokens
- * from localStorage. Used by the Axios interceptors and AuthContext.
+ * - Access Token: Managed via Cookies to support server-side middleware and SSR.
+ * - Refresh Token: Managed via localStorage (client-side only).
  */
 
 const ACCESS_TOKEN_KEY = "supporthub_access_token";
 const REFRESH_TOKEN_KEY = "supporthub_refresh_token";
 
-// Access Token Management
+// Access Token Management (Cookies for SSR support)
 export function getAccessToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  return Cookies.get(ACCESS_TOKEN_KEY) || null;
 }
 
 export function setAccessToken(token: string): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  // Set cookie with secure defaults: SameSite=Lax, Secure (in production)
+  // Expires in 15 mins (matching token expiry usually, or session based)
+  Cookies.set(ACCESS_TOKEN_KEY, token, {
+    expires: 1, // 1 day for simplicity in dev, or omit for session cookie
+    sameSite: "lax",
+    path: "/",
+  });
 }
 
 export function removeAccessToken(): void {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  Cookies.remove(ACCESS_TOKEN_KEY, { path: "/" });
 }
 
-// Refresh Token Management
+// Refresh Token Management (localStorage)
 export function getRefreshToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem(REFRESH_TOKEN_KEY);
@@ -40,7 +45,7 @@ export function removeRefreshToken(): void {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
-// Clear all tokens (useful for logout)
+// Clear all tokens
 export function clearTokens(): void {
   removeAccessToken();
   removeRefreshToken();

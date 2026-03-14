@@ -44,6 +44,7 @@ export default function AppHeader() {
         <input
           type="text"
           placeholder="Search tickets, customers, or articles... (Cmd+K)"
+          aria-label="Search tickets, customers, or articles"
           className="h-9 w-full rounded-lg border border-border bg-muted/40 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
         />
       </div>
@@ -69,7 +70,9 @@ export default function AppHeader() {
               </p>
             </div>
             <Avatar>
-              <AvatarImage src="" alt={fullName} />
+              {user?.avatarUrl && (
+                <AvatarImage src={user.avatarUrl} alt={fullName} />
+              )}
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>

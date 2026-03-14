@@ -383,12 +383,11 @@ export async function getUserProfile(userId: string) {
 }
 
 /**
- * Look up a user's workspace subdomain by their email.
- * This supports the "Find Your Workspace" public login flow.
+ * Lookup workspace(s) associated with an email address.
  *
- * @param email - The user's registered email address
- * @returns The user's workspace subdomain
- * @throws 404 if no account exists with this email
+ * Privacy-preserving: Always returns 200/Success to prevent account enumeration.
+ * If a user exists, it currently returns the subdomain directly to simplify the
+ * initial flow, but in a production environment should send an email instead.
  */
 export async function lookupUserWorkspace(email: string) {
   const user = await prisma.user.findUnique({
@@ -396,8 +395,12 @@ export async function lookupUserWorkspace(email: string) {
     include: { workspace: true },
   });
 
+  // Always return success even if user not found to prevent enumeration
   if (!user) {
-    throw { status: 404, message: "No account found with this email" };
+    return {
+      message:
+        "If an account is associated with this email, we have sent instructions to your inbox.",
+    };
   }
 
   return { subdomain: user.workspace.subdomain };

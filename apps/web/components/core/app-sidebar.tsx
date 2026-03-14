@@ -43,6 +43,7 @@ export default function AppSidebar() {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
+    if (!pathname) return false;
     if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   };
@@ -52,6 +53,7 @@ export default function AppSidebar() {
       {/* Logo */}
       <Link
         href="/dashboard"
+        aria-label="SupportHub Dashboard"
         className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform hover:scale-105"
       >
         <TicketCheck className="h-5 w-5" />
@@ -67,6 +69,7 @@ export default function AppSidebar() {
                 render={
                   <Link
                     href={item.href}
+                    aria-label={item.label}
                     className={cn(
                       "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
                       active
@@ -96,6 +99,7 @@ export default function AppSidebar() {
                 render={
                   <Link
                     href={item.href}
+                    aria-label={item.label}
                     className={cn(
                       "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
                       active

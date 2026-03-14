@@ -16,6 +16,7 @@ export interface UserProfileProfile {
   firstName: string;
   lastName: string;
   phone?: string;
+  avatarUrl?: string;
   role: string;
   workspace: {
     id: string;

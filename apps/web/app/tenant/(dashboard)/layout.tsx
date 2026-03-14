@@ -21,21 +21,19 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   React.useEffect(() => {
+    // Middleware handles most redirects, but client-side guard is still needed
+    // for immediate UI response after logout or token expiry during a session.
     if (!isLoading && !isAuthenticated) {
-      router.push("/login");
+      router.replace("/login");
     }
   }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading) {
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return null;
   }
 
   return <>{children}</>;

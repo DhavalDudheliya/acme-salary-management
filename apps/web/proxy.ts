@@ -16,10 +16,9 @@ export const config = {
 
 export function proxy(req: NextRequest) {
   const url = req.nextUrl;
+  const { pathname } = url;
 
   // Get hostname of request (e.g. acmecorp.supporthub.com, acmecorp.localhost:3000)
-  // headers.get('host') contains the port in local dev, which we need to strip
-  // for the ROOT_DOMAIN match if ROOT_DOMAIN also contains the port.
   let hostname = req.headers
     .get("host")!
     .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
@@ -35,35 +34,54 @@ export function proxy(req: NextRequest) {
   }
 
   const searchParams = req.nextUrl.searchParams.toString();
-  // Get the path (e.g. /, /login, /dashboard)
-  const path = `${url.pathname}${
+  const path = `${pathname}${
     searchParams.length > 0 ? `?${searchParams}` : ""
   }`;
 
-  // If we are on the root domain (e.g., localhost:3000 or supporthub.com)
-  // We serve the natural paths (e.g., /register, /login -> Find Workspace portal)
+  // ── Root domain (e.g., localhost:3000 or supporthub.com) ──
   if (hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
     return NextResponse.next();
   }
 
-  // We are on a subdomain (e.g., acmecorp.localhost:3000)
-  // Extract the subdomain piece.
+  // ── Subdomain routing (e.g., acmecorp.localhost:3000) ──
   const currentHost =
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
       ? hostname.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
       : hostname.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "");
 
-  // If there is no subdomain and it somehow bypassed the root domain check above,
-  // just continue normally
   if (!currentHost || currentHost === hostname) {
     return NextResponse.next();
   }
 
-  // Rewrite to the tenant-specific routing folder, injecting the subdomain
-  // e.g., acmecorp.supporthub.com/login -> app/tenant/login/page.tsx
-  // We attach the subdomain as a query param so the page can read it easily
+  // ── Server-side auth guard ──
+  const token = req.cookies.get("supporthub_access_token")?.value;
+
+  const isProtectedRoute =
+    pathname.includes("/dashboard") ||
+    pathname.includes("/tickets") ||
+    pathname.includes("/customers") ||
+    pathname.includes("/reporting") ||
+    pathname.includes("/settings");
+
+  const isAuthRoute =
+    pathname.includes("/login") || pathname.includes("/register");
+
+  // Redirect unauthenticated users away from protected routes
+  if (isProtectedRoute && !token) {
+    const loginUrl = new URL(`/login`, req.url);
+    loginUrl.searchParams.set("subdomain", currentHost);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Redirect authenticated users away from auth routes
+  if (isAuthRoute && token) {
+    const dashUrl = new URL(`/dashboard`, req.url);
+    dashUrl.searchParams.set("subdomain", currentHost);
+    return NextResponse.redirect(dashUrl);
+  }
+
+  // ── Rewrite to tenant routing folder ──
   const rewriteUrl = new URL(`/tenant${path}`, req.url);
-  // Add subdomain to query params for easy access in server components
   rewriteUrl.searchParams.set("subdomain", currentHost);
 
   return NextResponse.rewrite(rewriteUrl);

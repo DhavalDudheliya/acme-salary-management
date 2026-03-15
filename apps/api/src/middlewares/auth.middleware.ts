@@ -44,11 +44,19 @@ export function authMiddleware(
     // Verify the token signature and expiry, then decode the payload
     const payload = verifyAccessToken(token);
 
+    // Verify that the token contains the required workspace context
+    if (!payload.workspaceId) {
+      res
+        .status(401)
+        .json({ error: "Invalid token payload: workspaceId missing" });
+      return;
+    }
+
     // Attach user info to the request for downstream handlers
     (req as AuthenticatedRequest).user = {
       userId: payload.userId,
       email: payload.email,
-      domainId: payload.domainId,
+      workspaceId: payload.workspaceId,
       role: payload.role,
     };
 

@@ -5,7 +5,7 @@
  * - Access Token: Short-lived (default 15 min), sent with every API request
  * - Refresh Token: Long-lived (default 7 days), used to obtain new access tokens
  *
- * Both tokens carry the same payload (userId, email, domainId, role) but are
+ * Both tokens carry the same payload (userId, email, workspaceId, role) but are
  * signed with different secrets for security isolation.
  *
  * Secrets and expiry durations are configurable via environment variables:
@@ -22,7 +22,7 @@ import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 export interface AuthTokenPayload extends JwtPayload {
   userId: string;
   email: string;
-  domainId: string;
+  workspaceId: string;
   role: string;
 }
 

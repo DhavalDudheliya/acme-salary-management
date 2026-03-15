@@ -6,10 +6,8 @@ import { setAccessToken, setRefreshToken } from "../token";
 export interface AuthResponse {
   message: string;
   subdomain?: string;
-  tokens?: {
-    accessToken: string;
-    refreshToken: string;
-  };
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface UserProfileProfile {
@@ -18,12 +16,19 @@ export interface UserProfileProfile {
   firstName: string;
   lastName: string;
   phone?: string;
+  avatarUrl?: string;
   role: string;
-  domain: {
+  workspace: {
     id: string;
     subdomain: string;
     company: string;
   };
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: UserProfileProfile;
 }
 
 // --- Services ---
@@ -40,21 +45,25 @@ export const authService = {
   /**
    * Look up a workspace subdomain by user email
    */
-  async lookupDomain(email: string): Promise<{ subdomain: string }> {
-    const response = await api.post("/auth/lookup-domain", { email });
+  async lookupWorkspace(
+    email: string,
+  ): Promise<{ subdomain: string } | { message: string }> {
+    const response = await api.post<
+      { subdomain: string } | { message: string }
+    >("/auth/lookup-workspace", { email });
     return response.data;
   },
 
   /**
    * Log into a workspace
    */
-  async loginUser(data: Record<string, unknown>): Promise<AuthResponse> {
-    const response = await api.post("/auth/login", data);
+  async loginUser(data: Record<string, unknown>): Promise<LoginResponse> {
+    const response = await api.post<LoginResponse>("/auth/login", data);
 
     // If login is successful, store tokens right away
-    if (response.data.tokens) {
-      setAccessToken(response.data.tokens.accessToken);
-      setRefreshToken(response.data.tokens.refreshToken);
+    if (response.data.accessToken && response.data.refreshToken) {
+      setAccessToken(response.data.accessToken);
+      setRefreshToken(response.data.refreshToken);
     }
 
     return response.data;
@@ -65,6 +74,14 @@ export const authService = {
    */
   async getMe(): Promise<UserProfileProfile> {
     const response = await api.get("/auth/me");
+    return response.data;
+  },
+
+  /**
+   * Resend the email verification link
+   */
+  async resendVerification(email: string): Promise<{ message: string }> {
+    const response = await api.post("/auth/resend-verification", { email });
     return response.data;
   },
 };

@@ -32,6 +32,6 @@ export const loginSchema = z.object({
 
 // --- Workspace Lookup Schema ---
 
-export const lookupDomainSchema = z.object({
+export const lookupWorkspaceSchema = z.object({
   email: z.email("Invalid email format"),
 });

@@ -56,12 +56,12 @@ export const loginSchema = z.object({
 });
 
 /**
- * POST /api/auth/lookup-domain
+ * POST /api/auth/lookup-workspace
  *
  * Rules:
  * - email: valid email format
  */
-export const lookupDomainSchema = z.object({
+export const lookupWorkspaceSchema = z.object({
   email: z.email("Invalid email format"),
 });
 
@@ -75,4 +75,14 @@ export const refreshTokenSchema = z.object({
   refreshToken: z
     .string({ message: "Refresh token is required" })
     .min(1, "Refresh token is required"),
+});
+
+/**
+ * POST /api/auth/resend-verification
+ *
+ * Rules:
+ * - email: valid email format
+ */
+export const resendVerificationSchema = z.object({
+  email: z.email("Invalid email format"),
 });

@@ -17,10 +17,11 @@ import { Router, type IRouter } from "express";
 import {
   register,
   verifyEmail,
+  resendVerification,
   login,
   refreshToken,
   me,
-  lookupDomain,
+  lookupWorkspace,
 } from "./auth.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 
@@ -29,8 +30,9 @@ const router: IRouter = Router();
 // --- Public Routes ---
 router.post("/register", register);
 router.get("/verify-email", verifyEmail);
+router.post("/resend-verification", resendVerification);
 router.post("/login", login);
-router.post("/lookup-domain", lookupDomain);
+router.post("/lookup-workspace", lookupWorkspace);
 router.post("/refresh-token", refreshToken);
 
 // --- Protected Routes ---

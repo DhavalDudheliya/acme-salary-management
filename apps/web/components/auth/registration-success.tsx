@@ -1,16 +1,22 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useRouter } from "next/navigation";
 
-import { Check } from "lucide-react";
+import { Check, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@supporthub/ui/components/button";
+
+import { authService } from "@/lib/services/auth.service";
 
 interface RegistrationSuccessProps {
   email: string | null;
   subdomain: string | null;
 }
+
+const COOLDOWN_SECONDS = 60;
 
 /**
  * RegistrationSuccess - Step 3 of the registration flow.
@@ -25,6 +31,52 @@ export default function RegistrationSuccess({
   subdomain,
 }: RegistrationSuccessProps) {
   const router = useRouter();
+  const [isResending, setIsResending] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Clean up the interval on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  /** Start the cooldown countdown */
+  const startCooldown = useCallback(() => {
+    setCooldown(COOLDOWN_SECONDS);
+    timerRef.current = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          timerRef.current = null;
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, []);
+
+  /** Call the API to resend the verification email */
+  const handleResend = async () => {
+    if (!email || isResending || cooldown > 0) return;
+
+    setIsResending(true);
+    try {
+      await authService.resendVerification(email);
+      toast.success("A new verification link has been sent to your email.");
+      startCooldown();
+    } catch (error: unknown) {
+      const err = error as any;
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Failed to resend verification email. Please try again later.";
+      toast.error(message);
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   /** Redirect to the tenant login page — uses full redirect for cross-subdomain navigation */
   const goBackToLogin = () => {
@@ -37,6 +89,8 @@ export default function RegistrationSuccess({
       router.push("/login");
     }
   };
+
+  const isResendDisabled = isResending || cooldown > 0 || !email;
 
   return (
     <div className="animate-in zoom-in-95 relative overflow-hidden rounded-2xl border border-border bg-card p-8 text-center shadow-lg duration-500">
@@ -76,12 +130,23 @@ export default function RegistrationSuccess({
           </Button>
           <Button
             variant="ghost"
-            onClick={() => {
-              toast.success("A new verification link has been requested.");
-            }}
+            disabled={isResendDisabled}
+            onClick={handleResend}
             className="h-10 w-full text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            Resend verification email
+            {isResending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sending…
+              </>
+            ) : cooldown > 0 ? (
+              `Resend available in ${cooldown}s`
+            ) : (
+              <>
+                <Send className="mr-2 h-4 w-4" />
+                Resend verification email
+              </>
+            )}
           </Button>
         </div>
       </div>

@@ -28,7 +28,7 @@ import {
 } from "@supporthub/ui/components/input-group";
 
 import { authService } from "@/lib/services/auth.service";
-import { lookupDomainSchema } from "@/lib/validations/auth.schema";
+import { lookupWorkspaceSchema } from "@/lib/validations/auth.schema";
 
 type LookupValues = {
   email: string;
@@ -51,7 +51,7 @@ export default function FindWorkspaceForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<LookupValues>({
-    resolver: zodResolver(lookupDomainSchema),
+    resolver: zodResolver(lookupWorkspaceSchema),
   });
 
   const onSubmit = async (data: LookupValues) => {
@@ -59,20 +59,26 @@ export default function FindWorkspaceForm() {
     setApiError(null);
 
     try {
-      const response = await authService.lookupDomain(data.email);
+      const response = await authService.lookupWorkspace(data.email);
 
-      const subdomain = response.subdomain;
-      const rootDomain =
-        process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
-      const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+      if ("subdomain" in response) {
+        const subdomain = response.subdomain;
+        const rootDomain =
+          process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
+        const protocol =
+          process.env.NODE_ENV === "production" ? "https" : "http";
 
-      // Full page redirect — crosses subdomain boundary, can't use Next.js router
-      window.location.href = `${protocol}://${subdomain}.${rootDomain}/login`;
+        // Full page redirect — crosses subdomain boundary, can't use Next.js router
+        window.location.href = `${protocol}://${subdomain}.${rootDomain}/login`;
+      } else {
+        setApiError(response.message);
+      }
     } catch (error: unknown) {
       console.error("Lookup error:", error);
       const err = error as any;
       setApiError(
-        err.response?.data?.error ||
+        err.response?.data?.message ||
+          err.response?.data?.error ||
           "We couldn't find a workspace associated with that email address.",
       );
     } finally {

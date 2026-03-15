@@ -195,6 +195,7 @@ export default function TicketDetailPage() {
           <div className="border-t border-border p-4">
             <div className="flex gap-2 mb-3">
               <button
+                type="button"
                 onClick={() => setIsInternal(false)}
                 className={cn(
                   "px-3 py-1.5 text-sm rounded-md font-medium transition-colors",
@@ -207,6 +208,7 @@ export default function TicketDetailPage() {
                 Public Reply
               </button>
               <button
+                type="button"
                 onClick={() => setIsInternal(true)}
                 className={cn(
                   "px-3 py-1.5 text-sm rounded-md font-medium transition-colors",

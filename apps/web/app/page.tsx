@@ -23,7 +23,9 @@ export default function Home() {
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-md">
             The core support platform for your modern business.
           </p>
-          <Button size="lg">Get Started</Button>
+          <Link href="/register">
+            <Button size="lg">Get Started</Button>
+          </Link>
         </div>
       </main>
     </div>

@@ -26,7 +26,7 @@ export const addCommentSchema = z.object({
 export const listTicketsQuerySchema = z.object({
   status: z.enum(["OPEN", "PENDING", "SOLVED", "CLOSED"]).optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
-  assigneeId: z.string().optional(),
+  assigneeId: z.string().uuid("Invalid assignee ID").optional(),
   view: z
     .enum(["unsolved", "unassigned", "all", "recent"])
     .optional()

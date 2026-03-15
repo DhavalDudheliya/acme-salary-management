@@ -25,6 +25,12 @@ export interface UserProfileProfile {
   };
 }
 
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: UserProfileProfile;
+}
+
 // --- Services ---
 
 export const authService = {
@@ -47,8 +53,8 @@ export const authService = {
   /**
    * Log into a workspace
    */
-  async loginUser(data: Record<string, unknown>): Promise<AuthResponse> {
-    const response = await api.post("/auth/login", data);
+  async loginUser(data: Record<string, unknown>): Promise<LoginResponse> {
+    const response = await api.post<LoginResponse>("/auth/login", data);
 
     // If login is successful, store tokens right away
     if (response.data.accessToken && response.data.refreshToken) {

@@ -206,18 +206,26 @@ export async function resendVerificationForEmail(email: string) {
   const emailVerifyToken = generateVerificationToken();
   const emailVerifyExpires = getVerificationExpiry();
 
+  // Attempt to send email first. If it fails, we catch and throw
+  // to avoid updating the database with a token that was never sent.
+  try {
+    await sendVerificationEmail(
+      email,
+      emailVerifyToken,
+      user.workspace.subdomain,
+    );
+  } catch (err) {
+    logger.error({ err }, "Failed to resend verification email");
+    throw {
+      status: 500,
+      message: "Failed to send verification email. Please try again later.",
+    };
+  }
+
+  // Only persist the new token after successful email send
   await prisma.user.update({
     where: { id: user.id },
     data: { emailVerifyToken, emailVerifyExpires },
-  });
-
-  // Fire-and-forget
-  sendVerificationEmail(
-    email,
-    emailVerifyToken,
-    user.workspace.subdomain,
-  ).catch((err) => {
-    logger.error({ err }, "Failed to resend verification email");
   });
 
   return {

@@ -118,56 +118,63 @@ export async function revokeInvitation(
 }
 
 export async function acceptInvitation(data: AcceptInvitationInput) {
-  const invitation = await prisma.invitation.findUnique({
-    where: { token: data.token },
-    include: { workspace: true },
-  });
-
-  if (!invitation) {
-    throw { status: 404, message: "Invalid invitation token" };
-  }
-
-  if (invitation.status !== "PENDING") {
-    throw {
-      status: 400,
-      message: "Invitation has already been accepted or is no longer valid",
-    };
-  }
-
-  if (invitation.expiresAt < new Date()) {
-    await prisma.invitation.update({
-      where: { id: invitation.id },
-      data: { status: "EXPIRED" },
-    });
-    throw { status: 400, message: "Invitation has expired" };
-  }
-
   // Create the user
   const passwordHash = await hashPassword(data.password);
 
-  const user = await prisma.$transaction(async (tx: any) => {
-    // 1. Create user
-    const newUser = await tx.user.create({
-      data: {
-        email: invitation.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: "",
-        passwordHash,
-        role: "AGENT",
-        workspaceId: invitation.workspaceId,
-        isEmailVerified: true, // Auto-verify since they received the invite email
-      },
+  try {
+    const user = await prisma.$transaction(async (tx: any) => {
+      // 1. Double check invitation status atomically inside transaction
+      const invitation = await tx.invitation.findUnique({
+        where: { token: data.token },
+      });
+
+      if (!invitation || invitation.status !== "PENDING") {
+        throw {
+          status: 400,
+          message: "Invitation has already been accepted or is no longer valid",
+        };
+      }
+
+      if (invitation.expiresAt < new Date()) {
+        await tx.invitation.update({
+          where: { id: invitation.id },
+          data: { status: "EXPIRED" },
+        });
+        throw { status: 400, message: "Invitation has expired" };
+      }
+
+      // 2. Create user
+      const newUser = await tx.user.create({
+        data: {
+          email: invitation.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: "",
+          passwordHash,
+          role: "AGENT",
+          workspaceId: invitation.workspaceId,
+          isEmailVerified: true, // Auto-verify since they received the invite email
+        },
+      });
+
+      // 3. Mark invitation as accepted
+      await tx.invitation.update({
+        where: { id: invitation.id },
+        data: { status: "ACCEPTED" },
+      });
+
+      return newUser;
     });
 
-    // 2. Mark invitation as accepted
-    await tx.invitation.update({
-      where: { id: invitation.id },
-      data: { status: "ACCEPTED" },
-    });
-
-    return newUser;
-  });
-
-  return user;
+    return user;
+  } catch (error: any) {
+    // Catch unique constraint violation (P2002) for user email
+    if (error.code === "P2002") {
+      throw {
+        status: 409,
+        message: "A user with this email address already exists.",
+      };
+    }
+    throw error;
+  }
 }

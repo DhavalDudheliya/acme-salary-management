@@ -68,14 +68,14 @@ export function proxy(req: NextRequest) {
 
   // Redirect unauthenticated users away from protected routes
   if (isProtectedRoute && !token) {
-    const loginUrl = new URL(`/tenant/login`, req.url);
+    const loginUrl = new URL(`/login`, req.url);
     loginUrl.searchParams.set("subdomain", currentHost);
     return NextResponse.redirect(loginUrl);
   }
 
   // Redirect authenticated users away from auth routes
   if (isAuthRoute && token) {
-    const dashUrl = new URL(`/tenant/dashboard`, req.url);
+    const dashUrl = new URL(`/dashboard`, req.url);
     dashUrl.searchParams.set("subdomain", currentHost);
     return NextResponse.redirect(dashUrl);
   }

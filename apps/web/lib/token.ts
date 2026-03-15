@@ -22,6 +22,8 @@ export function setAccessToken(token: string): void {
     expires: 1, // 1 day for simplicity in dev, or omit for session cookie
     sameSite: "lax",
     path: "/",
+    secure:
+      typeof window !== "undefined" && window.location.protocol === "https:",
   });
 }
 

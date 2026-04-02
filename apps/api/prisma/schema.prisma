@@ -18,34 +18,41 @@ datasource db {
 /// Registered user of the platform.
 /// Each user belongs to exactly one Workspace (tenant workspace).
 model User {
-  id                 String       @id @default(uuid()) /// Primary key — UUID for multi-tenant safety
-  email              String       @unique /// Login identifier — must be globally unique
+  id                 String          @id @default(uuid()) /// Primary key — UUID for multi-tenant safety
+  email              String          @unique /// Login identifier — must be globally unique
   firstName          String /// User's first name
   lastName           String /// User's last name
   phone              String /// Contact phone number
   passwordHash       String /// bcrypt-hashed password — never store plain text
-  isEmailVerified    Boolean      @default(false) /// Flipped to true after clicking the verification link
-  emailVerifyToken   String?      @unique /// One-time token sent in the verification email
+  isEmailVerified    Boolean         @default(false) /// Flipped to true after clicking the verification link
+  emailVerifyToken   String?         @unique /// One-time token sent in the verification email
   emailVerifyExpires DateTime? /// Token expiry — 24 hours from registration
   refreshToken       String? /// Current refresh token for token rotation
-  role               Role         @default(ADMIN) /// ADMIN for the registering user; AGENT for invitees
+  role               Role            @default(ADMIN) /// ADMIN for the registering user; AGENT for invitees
   workspaceId        String /// FK to the tenant workspace
-  workspace          Workspace    @relation(fields: [workspaceId], references: [id])
+  workspace          Workspace       @relation(fields: [workspaceId], references: [id])
   invitationsSent    Invitation[] /// Invitations sent by this user
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+  assignedTickets    Ticket[] /// Tickets assigned to this user
+  comments           TicketComment[] /// Comments authored by this user
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 /// Tenant workspace created during registration.
 /// The slug is derived from the company name and used for tenant routing.
 model Workspace {
-  id          String       @id @default(uuid()) /// Primary key — UUID
-  subdomain   String       @unique /// URL-safe subdomain identifier, e.g. "acmecorp"
-  company     String /// Original company name provided at registration
-  users       User[] /// All users belonging to this workspace
-  invitations Invitation[] /// Invitations for this workspace
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id            String         @id @default(uuid()) /// Primary key — UUID
+  subdomain     String         @unique /// URL-safe subdomain identifier, e.g. "acmecorp"
+  company       String /// Original company name provided at registration
+  users         User[] /// All users belonging to this workspace
+  invitations   Invitation[] /// Invitations for this workspace
+  customers     Customer[] /// External customers in this workspace
+  tickets       Ticket[] /// All tickets in this workspace
+  tags          Tag[] /// Tags for categorization
+  emailAccounts EmailAccount[] /// Connected email accounts (Gmail / Outlook)
+  emailMessages EmailMessage[] /// Processed inbound email records
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 /// Role-based access control enum.
@@ -76,4 +83,129 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   EXPIRED
+}
+
+/// External end-user who submits tickets.
+/// Separate from User (internal team members).
+model Customer {
+  id          String    @id @default(uuid())
+  email       String
+  name        String
+  phone       String?
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  tickets     Ticket[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([email, workspaceId])
+}
+
+/// Support ticket created by or on behalf of a customer.
+model Ticket {
+  id            String          @id @default(uuid())
+  ticketNumber  Int
+  subject       String
+  description   String
+  status        TicketStatus    @default(OPEN)
+  priority      TicketPriority  @default(MEDIUM)
+  source        TicketSource    @default(MANUAL) /// How the ticket was created
+  customerId    String
+  customer      Customer        @relation(fields: [customerId], references: [id])
+  assigneeId    String?
+  assignee      User?           @relation(fields: [assigneeId], references: [id])
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+  comments      TicketComment[]
+  tags          Tag[]
+  emailMessages EmailMessage[] /// Associated inbound email records
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([ticketNumber, workspaceId])
+}
+
+/// A comment on a ticket — either a public reply or an internal note.
+model TicketComment {
+  id         String   @id @default(uuid())
+  body       String
+  isInternal Boolean  @default(false) /// true = internal note, false = public reply
+  ticketId   String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id])
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+/// Tag for categorizing tickets within a workspace.
+model Tag {
+  id          String    @id @default(uuid())
+  name        String
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  tickets     Ticket[]
+
+  @@unique([name, workspaceId])
+}
+
+enum TicketStatus {
+  OPEN
+  PENDING
+  SOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+/// How the ticket was created.
+enum TicketSource {
+  MANUAL /// Created manually by an agent
+  EMAIL /// Auto-created from an inbound email
+}
+
+/// Email provider enum.
+enum EmailProvider {
+  GMAIL
+  OUTLOOK
+}
+
+/// Connected email account for a workspace.
+/// Stores encrypted OAuth tokens for Gmail or Outlook API access.
+model EmailAccount {
+  id              String        @id @default(uuid())
+  provider        EmailProvider /// GMAIL or OUTLOOK
+  email           String /// The connected email address
+  accessTokenEnc  String /// AES-256-GCM encrypted access token
+  refreshTokenEnc String /// AES-256-GCM encrypted refresh token
+  tokenExpiresAt  DateTime? /// When the current access token expires
+  watchExpiry     DateTime? /// Gmail watch / Outlook subscription expiry
+  watchResourceId String? /// Gmail watch resourceId or Outlook subscriptionId
+  historyId       String? /// Gmail historyId for incremental sync
+  isActive        Boolean       @default(true) /// Whether this account is currently active
+  workspaceId     String
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([provider, workspaceId]) /// One account per provider per workspace
+}
+
+/// Tracks processed email Message-IDs for deduplication and threading.
+/// Each inbound email that creates or appends to a ticket gets a record here.
+model EmailMessage {
+  id          String    @id @default(uuid())
+  messageId   String /// RFC 2822 Message-ID header (globally unique per email)
+  references  String? /// Serialized References/In-Reply-To headers for threading
+  ticketId    String
+  ticket      Ticket    @relation(fields: [ticketId], references: [id])
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@unique([messageId, workspaceId]) /// Prevents duplicate processing
 }

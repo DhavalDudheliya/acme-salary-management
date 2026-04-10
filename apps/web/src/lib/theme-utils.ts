@@ -163,15 +163,21 @@ export function generatePalette(config: ThemeConfig): {
     "--chart-3": chartColors[2]!,
     "--chart-4": chartColors[3]!,
     "--chart-5": chartColors[4]!,
-    // Subtle hue tinting on structural grays
-    "--muted": `oklch(0.9846 ${round(tint)} ${hue})`,
+    // Full palette generation
+    "--background": `oklch(0.995 ${round(tint * 0.2)} ${hue})`,
+    "--foreground": `oklch(0.15 ${round(tint * 2)} ${hue})`,
+    "--card": `oklch(1 0 0)`,
+    "--card-foreground": `oklch(0.15 ${round(tint * 2)} ${hue})`,
+    "--popover": `oklch(1 0 0)`,
+    "--popover-foreground": `oklch(0.15 ${round(tint * 2)} ${hue})`,
+    "--muted": `oklch(0.97 ${round(tint)} ${hue})`,
     "--muted-foreground": `oklch(0.551 ${round(tint * 4)} ${hue})`,
-    "--secondary": `oklch(0.967 ${round(tint * 0.6)} ${hue})`,
-    "--secondary-foreground": `oklch(0.4461 ${round(tint * 5)} ${hue})`,
-    "--border": `oklch(0.9276 ${round(tint * 1.2)} ${hue})`,
-    "--input": `oklch(0.9276 ${round(tint * 1.2)} ${hue})`,
+    "--secondary": `oklch(0.96 ${round(tint * 1.5)} ${hue})`,
+    "--secondary-foreground": `oklch(0.15 ${round(tint * 2)} ${hue})`,
+    "--border": `oklch(0.92 ${round(tint * 1.2)} ${hue})`,
+    "--input": `oklch(0.92 ${round(tint * 1.2)} ${hue})`,
     "--sidebar": `oklch(0.9846 ${round(tint)} ${hue})`,
-    "--sidebar-border": `oklch(0.9276 ${round(tint * 1.2)} ${hue})`,
+    "--sidebar-border": `oklch(0.92 ${round(tint * 1.2)} ${hue})`,
   };
 
   const dark: Record<string, string> = {
@@ -190,6 +196,22 @@ export function generatePalette(config: ThemeConfig): {
     "--chart-3": chartColors[2]!,
     "--chart-4": chartColors[3]!,
     "--chart-5": chartColors[4]!,
+
+    // Deep, premium dark mode structural colors
+    "--background": `oklch(0.145 ${round(tint)} ${hue})`,
+    "--foreground": `oklch(0.98 ${round(tint)} ${hue})`,
+    "--card": `oklch(0.175 ${round(tint * 1.5)} ${hue})`,
+    "--card-foreground": `oklch(0.98 ${round(tint)} ${hue})`,
+    "--popover": `oklch(0.175 ${round(tint * 1.5)} ${hue})`,
+    "--popover-foreground": `oklch(0.98 ${round(tint)} ${hue})`,
+    "--muted": `oklch(0.22 ${round(tint * 2)} ${hue})`,
+    "--muted-foreground": `oklch(0.70 ${round(tint * 2)} ${hue})`,
+    "--secondary": `oklch(0.22 ${round(tint * 2)} ${hue})`,
+    "--secondary-foreground": `oklch(0.98 ${round(tint)} ${hue})`,
+    "--border": `oklch(0.24 ${round(tint * 2)} ${hue})`,
+    "--input": `oklch(0.24 ${round(tint * 2)} ${hue})`,
+    "--sidebar": `oklch(0.16 ${round(tint)} ${hue})`,
+    "--sidebar-border": `oklch(0.22 ${round(tint * 2)} ${hue})`,
   };
 
   const shared: Record<string, string> = {

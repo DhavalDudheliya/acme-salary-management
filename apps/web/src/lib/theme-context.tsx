@@ -200,28 +200,36 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return () => {
       clearThemeVariables();
     };
-  }, [fetchAndApply]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** Apply a draft theme for live preview. */
-  const applyPreview = useCallback((draft: Partial<WorkspaceTheme>) => {
-    const base = persistedThemeRef.current || DEFAULT_THEME;
-    const merged = { ...base, ...draft };
-    setTheme(merged);
-    setHasPreview(true);
+  const applyPreview = useCallback(
+    (draft: Partial<WorkspaceTheme>) => {
+      const base = persistedThemeRef.current || DEFAULT_THEME;
+      const merged = { ...base, ...draft };
+      setTheme(merged);
+      setHasPreview(true);
 
-    applyThemeVariables({
-      primaryColor: merged.primaryColor,
-      accentColor: merged.accentColor,
-      fontFamily: merged.fontFamily,
-      borderRadius: merged.borderRadius,
-    });
+      applyThemeVariables({
+        primaryColor: merged.primaryColor,
+        accentColor: merged.accentColor,
+        fontFamily: merged.fontFamily,
+        borderRadius: merged.borderRadius,
+      });
 
-    if (merged.fontFamily !== "Inter") {
-      loadGoogleFont(merged.fontFamily);
-    }
+      if (merged.fontFamily !== "Inter") {
+        loadGoogleFont(merged.fontFamily);
+      }
 
-    updateFavicon(merged.faviconUrl);
-  }, []);
+      updateFavicon(merged.faviconUrl);
+
+      if (merged.defaultMode) {
+        setNextTheme(merged.defaultMode);
+      }
+    },
+    [setNextTheme],
+  );
 
   /** Reset to the last persisted theme. */
   const resetPreview = useCallback(() => {
@@ -237,7 +245,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
 
     updateFavicon(persisted.faviconUrl);
-  }, []);
+
+    if (persisted.defaultMode) {
+      setNextTheme(persisted.defaultMode);
+    }
+  }, [setNextTheme]);
 
   /** Refresh theme from the server (call after saving). */
   const refreshTheme = useCallback(async () => {

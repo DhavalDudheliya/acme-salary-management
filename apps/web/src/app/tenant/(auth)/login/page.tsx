@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
 
 import LoginForm from "@/components/auth/login-form";
+import { Loading } from "@supporthub/ui/components/loading";
 
 export const metadata: Metadata = {
   title: "Sign In | SupportHub",
@@ -8,5 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default function TenantLoginPage() {
-  return <LoginForm />;
+  return (
+    <Suspense fallback={<Loading fullScreen />}>
+      <LoginForm />
+    </Suspense>
+  );
 }

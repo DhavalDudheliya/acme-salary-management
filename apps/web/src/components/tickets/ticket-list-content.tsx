@@ -3,6 +3,7 @@
 import { ListChecks } from "lucide-react";
 import { DataTable } from "@supporthub/ui/components/data-table";
 import { columns } from "./ticket-columns";
+import { Loading } from "@supporthub/ui/components/loading";
 import { type Ticket } from "@/lib/services/ticket.service";
 
 interface TicketListContentProps {
@@ -19,9 +20,7 @@ export function TicketListContent({
   return (
     <div className="flex-1 overflow-auto px-6 py-4">
       {loading ? (
-        <div className="flex justify-center p-12 text-muted-foreground">
-          Loading tickets...
-        </div>
+        <Loading />
       ) : tickets.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-16 text-center">
           <ListChecks className="mx-auto mb-4 h-12 w-12 text-muted-foreground/40" />

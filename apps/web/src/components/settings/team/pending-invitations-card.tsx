@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { Mail, Trash2 } from "lucide-react";
 import { Button } from "@supporthub/ui/components/button";
+import { Loading } from "@supporthub/ui/components/loading";
 import {
   Table,
   TableBody,
@@ -39,8 +40,8 @@ export function PendingInvitationsCard({
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="flex justify-center p-8 text-muted-foreground">
-            Loading...
+          <div className="flex justify-center p-8">
+            <Loading />
           </div>
         ) : invitations.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 text-center rounded-lg border border-dashed">

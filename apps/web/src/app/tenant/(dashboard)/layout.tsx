@@ -4,7 +4,7 @@ import React from "react";
 
 import { useRouter } from "next/navigation";
 
-import { Loader2 } from "lucide-react";
+import { Loading } from "@supporthub/ui/components/loading";
 
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { ThemeProvider } from "@/lib/theme-context";
@@ -30,11 +30,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [isLoading, isAuthenticated, router]);
 
   if (isLoading || !isAuthenticated) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <Loading fullScreen />;
   }
 
   return <>{children}</>;

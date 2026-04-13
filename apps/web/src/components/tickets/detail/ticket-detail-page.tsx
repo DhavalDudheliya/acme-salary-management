@@ -8,6 +8,7 @@ import { TicketDetailHeader } from "@/components/tickets/detail/ticket-detail-he
 import { TicketConversation } from "@/components/tickets/detail/ticket-conversation";
 import { TicketReplyEditor } from "@/components/tickets/detail/ticket-reply-editor";
 import { TicketPropertiesSidebar } from "@/components/tickets/detail/ticket-properties-sidebar";
+import { Loading } from "@supporthub/ui/components/loading";
 
 export function TicketDetailPage() {
   const params = useParams();
@@ -42,8 +43,8 @@ export function TicketDetailPage() {
 
   if (isLoading || !ticket) {
     return (
-      <div className="flex items-center justify-center p-16 text-muted-foreground">
-        Loading ticket...
+      <div className="flex items-center justify-center p-16">
+        <Loading size="lg" />
       </div>
     );
   }

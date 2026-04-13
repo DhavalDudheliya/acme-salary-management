@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card, CardContent } from "@supporthub/ui/components/card";
+import { Loading } from "@supporthub/ui/components/loading";
 
 import { useWorkspaceTheme } from "@/lib/theme-context";
 import { useAuth } from "@/lib/auth-context";
@@ -176,8 +177,8 @@ export function BrandingSettingsPage() {
 
   if (isThemeLoading || !draft) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loading size="lg" />
       </div>
     );
   }

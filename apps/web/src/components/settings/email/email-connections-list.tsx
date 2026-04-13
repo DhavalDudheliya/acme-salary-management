@@ -1,5 +1,5 @@
-import { Loader2 } from "lucide-react";
 import { EmailConnectionCard } from "@/components/settings/email-connection-card";
+import { Loading } from "@supporthub/ui/components/loading";
 import type { EmailConnectionStatus } from "@/lib/services/email.service";
 
 interface EmailConnectionsListProps {
@@ -15,9 +15,8 @@ export function EmailConnectionsList({
 }: EmailConnectionsListProps) {
   if (loading && !status) {
     return (
-      <div className="flex justify-center p-12 text-muted-foreground">
-        <Loader2 className="h-6 w-6 animate-spin mr-2" />
-        Loading email connections...
+      <div className="flex justify-center p-12">
+        <Loading />
       </div>
     );
   }

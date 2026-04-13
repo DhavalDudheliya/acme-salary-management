@@ -20,6 +20,7 @@ import { Input } from "@supporthub/ui/components/input";
 import type { Customer } from "@/lib/services/customer.service";
 import { CustomerFormDialog } from "@/components/customers/customer-form-dialog";
 import { CustomerListContent } from "@/components/customers/customer-list-content";
+import { Loading } from "@supporthub/ui/components/loading";
 
 interface CustomersListCardProps {
   customers: Customer[];
@@ -61,9 +62,7 @@ export function CustomersListCard({
 
       <CardContent>
         {loading ? (
-          <div className="flex justify-center py-12 text-sm text-muted-foreground">
-            Loading customers...
-          </div>
+          <Loading />
         ) : filteredCustomers.length === 0 ? (
           <Empty className="border border-dashed py-14">
             <EmptyHeader>

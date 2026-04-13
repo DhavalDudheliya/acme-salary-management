@@ -7,16 +7,11 @@ export const metadata: Metadata = {
 };
 
 import { Suspense } from "react";
+import { Loading } from "@supporthub/ui/components/loading";
 
 export default function Page() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-screen items-center justify-center">
-          Loading...
-        </div>
-      }
-    >
+    <Suspense fallback={<Loading fullScreen />}>
       <AcceptInvitePage />
     </Suspense>
   );

@@ -79,7 +79,7 @@ export default function FindWorkspaceForm() {
       setApiError(
         err.response?.data?.message ||
           err.response?.data?.error ||
-          "We couldn't find a workspace associated with that email address.",
+          "Something went wrong. Please try again.",
       );
     } finally {
       setIsLoading(false);

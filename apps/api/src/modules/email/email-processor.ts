@@ -13,6 +13,7 @@
 
 import prisma from "../../lib/prisma.js";
 import { emitTicketEvent } from "../../lib/socket.js";
+import { enqueueAIClassificationJob } from "../../lib/queue.js";
 import logger from "../../lib/logger.js";
 
 /** Unified email data shape from both Gmail and Outlook parsers */
@@ -203,7 +204,24 @@ async function createTicketFromEmail(
     "New ticket created from inbound email",
   );
 
-  // ── Step 5: Real-time emit ──
+  // ── Step 5: Enqueue AI classification (non-blocking) ──
+  try {
+    await enqueueAIClassificationJob({
+      ticketId: ticket.id,
+      subject: subject || "",
+      bodyPlain: bodyPlain || "",
+      workspaceId,
+    });
+    logger.info({ ticketId: ticket.id }, "AI classification job enqueued");
+  } catch (err) {
+    // Non-fatal — ticket is created, just won't be auto-tagged
+    logger.error(
+      { err, ticketId: ticket.id },
+      "Failed to enqueue AI classification job — ticket will remain untagged",
+    );
+  }
+
+  // ── Step 6: Real-time emit ──
   emitTicketEvent(workspaceId, "ticket:created", {
     ticket: {
       id: ticket.id,

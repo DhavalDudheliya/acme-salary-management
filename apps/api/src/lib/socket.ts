@@ -98,7 +98,12 @@ export function initSocketIO(httpServer: HttpServer): Server {
  */
 export function emitTicketEvent(
   workspaceId: string,
-  event: "ticket:created" | "ticket:updated" | "ticket:reply",
+  event:
+    | "ticket:created"
+    | "ticket:updated"
+    | "ticket:reply"
+    | "ticket:tagged"
+    | "ticket:assigned",
   data: unknown,
 ): void {
   if (!io) {

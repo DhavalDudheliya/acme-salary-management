@@ -10,6 +10,7 @@ import {
   Settings,
   TicketCheck,
   Users,
+  Zap,
 } from "lucide-react";
 
 import {
@@ -20,12 +21,21 @@ import {
 
 import { cn } from "@supporthub/ui/lib/utils";
 import { useWorkspaceTheme } from "@/lib/theme-context";
+import { useAuth } from "@/lib/auth-context";
 
-const mainNavItems = [
+interface NavItem {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  href: string;
+  adminOnly?: boolean;
+}
+
+const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: TicketCheck, label: "Tickets", href: "/tickets" },
   { icon: Users, label: "Customers", href: "/customers" },
   { icon: BarChart3, label: "Reporting", href: "/reporting" },
+  { icon: Zap, label: "Automation", href: "/automation", adminOnly: true },
 ];
 
 const bottomNavItems = [
@@ -43,6 +53,8 @@ const bottomNavItems = [
 export default function AppSidebar() {
   const pathname = usePathname();
   const { theme } = useWorkspaceTheme();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
 
   const isActive = (href: string) => {
     if (!pathname) return false;
@@ -71,32 +83,34 @@ export default function AppSidebar() {
 
       {/* Main Navigation */}
       <nav className="flex flex-1 flex-col items-center gap-1">
-        {mainNavItems.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Tooltip key={item.href}>
-              <TooltipTrigger
-                render={
-                  <Link
-                    href={item.href}
-                    aria-label={item.label}
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
-                      active
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                    )}
-                  />
-                }
-              >
-                <item.icon className="h-5 w-5" />
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>
-                {item.label}
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
+        {mainNavItems
+          .filter((item) => !item.adminOnly || isAdmin)
+          .map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Tooltip key={item.href}>
+                <TooltipTrigger
+                  render={
+                    <Link
+                      href={item.href}
+                      aria-label={item.label}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                        active
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                      )}
+                    />
+                  }
+                >
+                  <item.icon className="h-5 w-5" />
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}>
+                  {item.label}
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
       </nav>
 
       {/* Bottom Navigation */}

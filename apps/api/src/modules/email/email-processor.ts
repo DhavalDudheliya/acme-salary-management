@@ -27,6 +27,7 @@ export interface InboundEmail {
   inReplyTo: string | null; // Single Message-ID
   date: Date;
   workspaceId: string;
+  emailAccountId: string;
 }
 
 /**
@@ -164,8 +165,15 @@ async function createTicketFromEmail(
   email: InboundEmail,
   customerId: string,
 ): Promise<void> {
-  const { messageId, subject, bodyPlain, bodyHtml, references, workspaceId } =
-    email;
+  const {
+    messageId,
+    subject,
+    bodyPlain,
+    bodyHtml,
+    references,
+    workspaceId,
+    emailAccountId,
+  } = email;
 
   const ticketNumber = await getNextTicketNumber(workspaceId);
 
@@ -207,6 +215,7 @@ async function createTicketFromEmail(
   // ── Step 5: Enqueue AI classification (non-blocking) ──
   try {
     await enqueueAIClassificationJob({
+      emailAccountId,
       ticketId: ticket.id,
       subject: subject || "",
       bodyPlain: bodyPlain || "",

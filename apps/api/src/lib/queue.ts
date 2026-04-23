@@ -54,9 +54,15 @@ export async function enqueueEmailJob(data: EmailJobData): Promise<void> {
 
 /** Job data shape for the AI classification queue */
 export interface AIClassificationJobData {
+  /** The ID of the email account to fetch the email from */
+  emailAccountId: string;
+  /** The ID of the ticket to classify */
   ticketId: string;
+  /** The subject of the email */
   subject: string;
+  /** The plain text body of the email */
   bodyPlain: string;
+  /** The workspace ID that owns this email account */
   workspaceId: string;
 }
 

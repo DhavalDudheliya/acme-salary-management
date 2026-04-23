@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
@@ -160,8 +161,9 @@ export function AssignmentRulesPage() {
 
       {/* Fallback info */}
       {rules.length > 0 && (
-        <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-dashed text-xs text-muted-foreground text-center">
-          If no rule matches → ticket goes to the{" "}
+        <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-dashed text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+          If no rule matches <ArrowRight className="h-3.5 w-3.5 opacity-70" />{" "}
+          ticket goes to the
           <strong>unassigned queue</strong>
         </div>
       )}

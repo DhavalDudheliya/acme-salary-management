@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Zap, Users } from "lucide-react";
+import { X, Zap, Users, Info, ArrowRight } from "lucide-react";
 import { cn } from "@supporthub/ui/lib/utils";
 import {
   rulesService,
@@ -32,6 +32,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@supporthub/ui/components/select";
+import { SegmentedControl } from "@supporthub/ui/components/segmented-control";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@supporthub/ui/components/tooltip";
 
 export function RuleFormModal({
   rule,
@@ -132,26 +138,35 @@ export function RuleFormModal({
 
           {/* Conditions */}
           <div className="space-y-3">
-            <Label>Conditions</Label>
+            <div className="flex items-center gap-1.5">
+              <Label>Conditions</Label>
+              <Tooltip>
+                <TooltipTrigger
+                  type="button"
+                  className="cursor-help inline-flex outline-none"
+                >
+                  <Info className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-[200px]">
+                    Defines the criteria that incoming tickets must meet for
+                    this rule to apply.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
 
             {/* Operator toggle */}
-            <div className="flex gap-2 items-center mb-3">
-              {(["AND", "OR"] as const).map((op) => {
-                const handleSelectOperator = () => setOperator(op);
-
-                return (
-                  <Button
-                    key={op}
-                    type="button"
-                    variant={operator === op ? "default" : "outline"}
-                    size="sm"
-                    onClick={handleSelectOperator}
-                  >
-                    {op}
-                  </Button>
-                );
-              })}
-              <span className="text-xs text-muted-foreground ml-1">
+            <div className="flex gap-3 items-center mb-4">
+              <SegmentedControl<"AND" | "OR">
+                options={[
+                  { value: "AND", label: "AND" },
+                  { value: "OR", label: "OR" },
+                ]}
+                value={operator}
+                onChange={setOperator}
+              />
+              <span className="text-xs text-muted-foreground">
                 {operator === "AND"
                   ? "All conditions must match"
                   : "Any condition can match"}
@@ -176,7 +191,7 @@ export function RuleFormModal({
                     >
                       {CATEGORY_LABELS[c.category] || c.category}
                     </span>
-                    <span className="text-muted-foreground">→</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/70" />
                     <span className="font-medium truncate">{c.tagName}</span>
                     <Button
                       type="button"
@@ -202,7 +217,10 @@ export function RuleFormModal({
                     setCondTag("");
                   }}
                 >
-                  <SelectTrigger aria-label="Select Category">
+                  <SelectTrigger
+                    aria-label="Select Category"
+                    className={"w-full"}
+                  >
                     <SelectValue placeholder="Category..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -220,7 +238,7 @@ export function RuleFormModal({
                   value={condTag}
                   onValueChange={(v) => setCondTag(v || "")}
                 >
-                  <SelectTrigger aria-label="Select Tag">
+                  <SelectTrigger aria-label="Select Tag" className={"w-full"}>
                     <SelectValue placeholder="Tag..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -244,29 +262,41 @@ export function RuleFormModal({
 
           {/* Assignment strategy */}
           <div className="space-y-3">
-            <Label>Assign To</Label>
-            <div className="flex gap-2 mb-3">
-              {(["SPECIFIC", "ROUND_ROBIN"] as const).map((s) => {
-                const handleSelectStrategy = () => setStrategy(s);
-
-                return (
-                  <Button
-                    key={s}
-                    type="button"
-                    variant={strategy === s ? "default" : "outline"}
-                    size="sm"
-                    className="flex items-center gap-1.5"
-                    onClick={handleSelectStrategy}
-                  >
-                    {s === "SPECIFIC" ? (
-                      <Zap className="h-3 w-3" />
-                    ) : (
-                      <Users className="h-3 w-3" />
-                    )}
-                    {s === "SPECIFIC" ? "Specific Agent" : "Round Robin"}
-                  </Button>
-                );
-              })}
+            <div className="flex items-center gap-1.5">
+              <Label>Assign To</Label>
+              <Tooltip>
+                <TooltipTrigger
+                  type="button"
+                  className="cursor-help inline-flex outline-none"
+                >
+                  <Info className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-[250px]">
+                    Determines how the matching ticket will be routed. 'Specific
+                    Agent' routes to one person. 'Round Robin' distributes
+                    evenly among the team.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="flex mb-3">
+              <SegmentedControl<"SPECIFIC" | "ROUND_ROBIN">
+                options={[
+                  {
+                    value: "SPECIFIC",
+                    label: "Specific Agent",
+                    icon: <Zap className="h-3 w-3" />,
+                  },
+                  {
+                    value: "ROUND_ROBIN",
+                    label: "Round Robin",
+                    icon: <Users className="h-3 w-3" />,
+                  },
+                ]}
+                value={strategy}
+                onChange={setStrategy}
+              />
             </div>
 
             {strategy === "SPECIFIC" && (
@@ -276,7 +306,7 @@ export function RuleFormModal({
                   setAssigneeId(v === "NONE" || !v ? null : v)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className={"w-full"}>
                   <SelectValue placeholder="Select agent..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -292,16 +322,33 @@ export function RuleFormModal({
           </div>
 
           {/* Optional overrides */}
-          <div className="flex gap-4 items-end">
-            <div className="flex-1 space-y-2">
-              <Label>Override Priority</Label>
+          <div className="space-y-5 pt-4 border-t mt-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <Label>Override Priority</Label>
+                <Tooltip>
+                  <TooltipTrigger
+                    type="button"
+                    className="cursor-help inline-flex outline-none"
+                  >
+                    <Info className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-[250px]">
+                      Optionally force a specific priority level for tickets
+                      that match these conditions, overriding default priority
+                      logic.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Select
                 value={setPriority || "NONE"}
                 onValueChange={(v) =>
                   setSetPriority(v === "NONE" || !v ? null : v)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="No override" />
                 </SelectTrigger>
                 <SelectContent>
@@ -314,18 +361,26 @@ export function RuleFormModal({
               </Select>
             </div>
 
-            <div className="flex items-center space-x-2 pb-2">
+            <div className="flex items-start space-x-3 rounded-lg border p-4 shadow-sm bg-muted/10 transition-colors hover:bg-muted/30">
               <Checkbox
                 id="flag-urgent"
                 checked={flagUrgent}
                 onCheckedChange={(c) => setFlagUrgent(c === true)}
+                className="mt-0.5"
               />
-              <Label
-                htmlFor="flag-urgent"
-                className="cursor-pointer font-normal"
-              >
-                Flag urgent
-              </Label>
+              <div className="space-y-1.5 leading-none">
+                <Label
+                  htmlFor="flag-urgent"
+                  className="cursor-pointer font-medium text-sm"
+                >
+                  Flag for immediate attention
+                </Label>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Automatically marks this ticket as requiring immediate agent
+                  review. It will bypass standard SLA queues and be visually
+                  highlighted in the inbox.
+                </p>
+              </div>
             </div>
           </div>
 

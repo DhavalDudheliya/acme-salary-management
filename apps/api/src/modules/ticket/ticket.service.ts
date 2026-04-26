@@ -23,18 +23,15 @@ export async function createTicket(
 ) {
   const ticketNumber = await getNextTicketNumber(workspaceId);
 
-  // Handle tags — find-or-create by name within the workspace
+  // Handle tags — find existing tags by name within the workspace
   let tagConnections: { id: string }[] = [];
   if (data.tags && data.tags.length > 0) {
-    const tagRecords = await Promise.all(
-      data.tags.map((name) =>
-        prisma.tag.upsert({
-          where: { name_workspaceId: { name, workspaceId } },
-          update: {},
-          create: { name, workspaceId },
-        }),
-      ),
-    );
+    const tagRecords = await prisma.tag.findMany({
+      where: {
+        workspaceId,
+        name: { in: data.tags },
+      },
+    });
     tagConnections = tagRecords.map((t) => ({ id: t.id }));
   }
 
@@ -151,16 +148,13 @@ export async function updateTicket(
 
   const tagOps: any = {};
   if (tags !== undefined) {
-    // Find-or-create each tag, then set the relation (replaces existing)
-    const tagRecords = await Promise.all(
-      tags.map((name) =>
-        prisma.tag.upsert({
-          where: { name_workspaceId: { name, workspaceId } },
-          update: {},
-          create: { name, workspaceId },
-        }),
-      ),
-    );
+    // Find existing tags by name, then set the relation (replaces existing)
+    const tagRecords = await prisma.tag.findMany({
+      where: {
+        workspaceId,
+        name: { in: tags },
+      },
+    });
     tagOps.set = tagRecords.map((t) => ({ id: t.id }));
   }
 

@@ -71,6 +71,7 @@ export function HeroSection() {
             >
               <Button
                 render={<Link href="/register" />}
+                nativeButton={false}
                 size="lg"
                 className="text-base px-8 gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow w-full sm:w-auto"
               >
@@ -79,6 +80,7 @@ export function HeroSection() {
               </Button>
               <Button
                 render={<a href="#how-it-works" />}
+                nativeButton={false}
                 size="lg"
                 variant="outline"
                 className="text-base px-8 w-full sm:w-auto"

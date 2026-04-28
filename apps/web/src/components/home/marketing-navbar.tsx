@@ -63,10 +63,19 @@ export function MarketingNavbar() {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
-            <Button render={<Link href="/login" />} variant="ghost" size="sm">
+            <Button
+              render={<Link href="/login" />}
+              nativeButton={false}
+              variant="ghost"
+              size="sm"
+            >
               Login
             </Button>
-            <Button render={<Link href="/register" />} size="sm">
+            <Button
+              render={<Link href="/register" />}
+              nativeButton={false}
+              size="sm"
+            >
               Start Free Trial
             </Button>
           </div>
@@ -112,6 +121,7 @@ export function MarketingNavbar() {
                   render={
                     <Link href="/login" onClick={() => setMobileOpen(false)} />
                   }
+                  nativeButton={false}
                   variant="outline"
                   className="w-full"
                 >
@@ -124,6 +134,7 @@ export function MarketingNavbar() {
                       onClick={() => setMobileOpen(false)}
                     />
                   }
+                  nativeButton={false}
                   className="w-full"
                 >
                   Start Free Trial

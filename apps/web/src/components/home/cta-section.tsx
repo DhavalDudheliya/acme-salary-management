@@ -49,15 +49,15 @@ export function CTASection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Link href="/register">
-            <Button
-              size="lg"
-              className="bg-white text-primary hover:bg-white/90 text-base px-8 gap-2 shadow-xl shadow-black/20"
-            >
-              Start Free Trial
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/register" />}
+            nativeButton={false}
+            size="lg"
+            className="bg-white text-primary hover:bg-white/90 text-base px-8 gap-2 shadow-xl shadow-black/20"
+          >
+            Start Free Trial
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </motion.div>
       </div>
     </section>

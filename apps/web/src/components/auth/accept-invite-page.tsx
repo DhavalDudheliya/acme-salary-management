@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { invitationService } from "@/lib/services/invitation.service";
 import { toast } from "sonner";
-import { Inbox, Loader2, CheckCircle2 } from "lucide-react";
+import { Inbox, Loader2, CheckCircle2, Eye, EyeOff, Lock } from "lucide-react";
 
 import { Button } from "@supporthub/ui/components/button";
 import {
@@ -24,7 +24,15 @@ import {
   FieldError,
   FieldContent,
 } from "@supporthub/ui/components/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+} from "@supporthub/ui/components/input-group";
 import { Input } from "@supporthub/ui/components/input";
+import PasswordStrengthMeter from "./password-strength-meter";
 
 const acceptSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -37,6 +45,7 @@ type AcceptFormValues = z.infer<typeof acceptSchema>;
 export function AcceptInvitePage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
@@ -44,6 +53,7 @@ export function AcceptInvitePage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<AcceptFormValues>({
     resolver: zodResolver(acceptSchema),
@@ -53,6 +63,7 @@ export function AcceptInvitePage() {
       password: "",
     },
   });
+  const currentPassword = watch("password", "");
 
   async function onSubmit(values: AcceptFormValues) {
     if (!token) {
@@ -85,8 +96,8 @@ export function AcceptInvitePage() {
 
   if (!token) {
     return (
-      <div className="flex h-screen items-center justify-center bg-muted/30">
-        <Card className="mx-auto max-w-sm text-center">
+      <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <Card className="w-full text-center">
           <CardHeader>
             <CardTitle>Invalid Link</CardTitle>
             <CardDescription>
@@ -101,8 +112,8 @@ export function AcceptInvitePage() {
 
   if (success) {
     return (
-      <div className="flex h-screen items-center justify-center bg-muted/30">
-        <Card className="mx-auto max-w-md text-center">
+      <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <Card className="w-full text-center">
           <CardHeader>
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 mb-4">
               <CheckCircle2 className="h-8 w-8 text-green-600" />
@@ -122,8 +133,8 @@ export function AcceptInvitePage() {
   }
 
   return (
-    <div className="flex h-screen items-center justify-center bg-muted/30 p-4">
-      <Card className="mx-auto max-w-sm w-full">
+    <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <Card className="w-full">
         <CardHeader className="text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-2">
             <Inbox className="h-6 w-6 text-primary" />
@@ -166,14 +177,41 @@ export function AcceptInvitePage() {
             <Field data-invalid={!!errors.password}>
               <FieldLabel htmlFor="password">Create Password</FieldLabel>
               <FieldContent>
-                <Input
-                  id="password"
-                  type="password"
-                  disabled={loading}
-                  {...register("password")}
-                />
+                <InputGroup className="h-10">
+                  <InputGroupAddon>
+                    <InputGroupText>
+                      <Lock aria-hidden="true" />
+                    </InputGroupText>
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    aria-invalid={!!errors.password}
+                    disabled={loading}
+                    placeholder="........"
+                    {...register("password")}
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
               </FieldContent>
               {errors.password && <FieldError errors={[errors.password]} />}
+              <PasswordStrengthMeter password={currentPassword} />
             </Field>
 
             <Button type="submit" className="w-full mt-6" disabled={loading}>

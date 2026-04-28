@@ -14,6 +14,8 @@ import {
   loginSchema,
   lookupWorkspaceSchema,
   refreshTokenSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./auth.validation.js";
 
 /** Inferred from registerSchema */
@@ -27,6 +29,12 @@ export type LookupWorkspaceBody = z.infer<typeof lookupWorkspaceSchema>;
 
 /** Inferred from refreshTokenSchema */
 export type RefreshTokenBody = z.infer<typeof refreshTokenSchema>;
+
+/** Inferred from forgotPasswordSchema */
+export type ForgotPasswordBody = z.infer<typeof forgotPasswordSchema>;
+
+/** Inferred from resetPasswordSchema */
+export type ResetPasswordBody = z.infer<typeof resetPasswordSchema>;
 
 /**
  * Extended Express Request with authenticated user data.

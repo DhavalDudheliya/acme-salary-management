@@ -27,6 +27,8 @@ model User {
   isEmailVerified    Boolean         @default(false) /// Flipped to true after clicking the verification link
   emailVerifyToken   String?         @unique /// One-time token sent in the verification email
   emailVerifyExpires DateTime? /// Token expiry — 24 hours from registration
+  passwordResetToken String?         @unique /// One-time token sent in the password reset email
+  passwordResetExpires DateTime? /// Token expiry — 1 hour from reset request
   refreshToken       String? /// Current refresh token for token rotation
   role               Role            @default(ADMIN) /// ADMIN for the registering user; AGENT for invitees
   workspaceId        String /// FK to the tenant workspace

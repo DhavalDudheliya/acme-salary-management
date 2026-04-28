@@ -86,3 +86,33 @@ export const refreshTokenSchema = z.object({
 export const resendVerificationSchema = z.object({
   email: z.email("Invalid email format"),
 });
+
+/**
+ * POST /api/auth/forgot-password
+ *
+ * Rules:
+ * - email: valid email format
+ */
+export const forgotPasswordSchema = z.object({
+  email: z.email("Invalid email format"),
+});
+
+/**
+ * POST /api/auth/reset-password
+ *
+ * Rules:
+ * - token: required non-empty string
+ * - password: at least 8 chars with upper/lower/number/special
+ */
+export const resetPasswordSchema = z.object({
+  token: z
+    .string({ message: "Reset token is required" })
+    .min(1, "Reset token is required"),
+  password: z
+    .string({ message: "Password is required" })
+    .min(8, "Password must be at least 8 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+    ),
+});

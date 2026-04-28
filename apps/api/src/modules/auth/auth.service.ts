@@ -23,8 +23,16 @@ import {
   getVerificationExpiry,
 } from "../../utils/token.js";
 import { generateSubdomain } from "../../utils/subdomain.js";
-import { sendVerificationEmail } from "../../services/email.service.js";
-import { RegisterBody, LoginBody } from "./auth.types.js";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} from "../../services/email.service.js";
+import {
+  RegisterBody,
+  LoginBody,
+  ForgotPasswordBody,
+  ResetPasswordBody,
+} from "./auth.types.js";
 import { AppError } from "../../errors/index.js";
 import logger from "../../lib/logger.js";
 
@@ -400,4 +408,85 @@ export async function lookupUserWorkspace(email: string) {
   }
 
   return { subdomain: user.workspace.subdomain };
+}
+
+/**
+ * Send a generic forgot-password reset email.
+ *
+ * Uses a generic success response to avoid email enumeration.
+ */
+export async function forgotPasswordForEmail(data: ForgotPasswordBody) {
+  const user = await prisma.user.findUnique({
+    where: { email: data.email },
+    include: { workspace: true },
+  });
+
+  if (!user) {
+    return {
+      message:
+        "If an account with this email exists, a password reset email has been sent.",
+    };
+  }
+
+  const passwordResetToken = generateVerificationToken();
+  const passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000);
+
+  try {
+    await sendPasswordResetEmail(
+      user.email,
+      passwordResetToken,
+      user.workspace.subdomain,
+    );
+  } catch (err) {
+    logger.error({ err }, "Failed to send password reset email");
+    throw AppError.internal(
+      "Failed to send password reset email. Please try again later.",
+    );
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      passwordResetToken,
+      passwordResetExpires,
+    },
+  });
+
+  return {
+    message:
+      "If an account with this email exists, a password reset email has been sent.",
+  };
+}
+
+/**
+ * Reset a user's password using a valid one-time token.
+ */
+export async function resetPassword(data: ResetPasswordBody) {
+  const user = await prisma.user.findUnique({
+    where: { passwordResetToken: data.token },
+  });
+
+  if (
+    !user ||
+    !user.passwordResetExpires ||
+    user.passwordResetExpires < new Date()
+  ) {
+    throw AppError.badRequest("Invalid or expired password reset link");
+  }
+
+  const passwordHash = await hashPassword(data.password);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      passwordHash,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      refreshToken: null,
+    },
+  });
+
+  return {
+    message: "Password reset successful. You can now sign in.",
+  };
 }

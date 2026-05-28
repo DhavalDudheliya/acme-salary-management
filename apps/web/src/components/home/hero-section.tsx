@@ -1,145 +1,126 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import { motion } from "motion/react";
-import { Button } from "@supporthub/ui/components/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+
+// Lazy-load the heavy Three.js particle field
+const HeroParticles = dynamic(
+  () => import("./hero-particles").then((m) => ({ default: m.HeroParticles })),
+  { ssr: false },
+);
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-      {/* Background */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
-        <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]" />
-        {/* Grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
+    <section className="relative isolate min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      {/* Three.js Particle Background */}
+      <Suspense fallback={null}>
+        <HeroParticles />
+      </Suspense>
+
+      {/* Gradient overlays */}
+      <div className="absolute inset-0 z-[1] pointer-events-none">
+        <div className="absolute inset-0 bg-linear-to-b from-[#0a0a12] via-transparent to-[#0a0a12]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-blue-600/8 rounded-full blur-[150px]" />
+        <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-violet-600/6 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-600/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Text */}
-          <div className="text-center lg:text-left">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
-                <Sparkles className="h-3.5 w-3.5" />
-                14 days free · No credit card required
-              </div>
-            </motion.div>
+      {/* Grid pattern */}
+      <div
+        className="absolute inset-0 z-[2] opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.15) 1px, transparent 1px)",
+          backgroundSize: "80px 80px",
+        }}
+      />
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6"
-            >
-              Customer Support,{" "}
-              <span className="bg-gradient-to-r from-primary via-blue-500 to-indigo-500 bg-clip-text text-transparent">
-                Automated.
-              </span>
-            </motion.h1>
+      <div
+        className="absolute inset-0 z-[3] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 48% 36% at 50% 51%, rgba(10, 10, 18, 0.82) 0%, rgba(10, 10, 18, 0.66) 42%, rgba(10, 10, 18, 0.18) 72%, transparent 100%)",
+        }}
+      />
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
-            >
-              Turn emails into tickets automatically. AI-powered tagging, smart
-              assignment rules, and a real-time dashboard — all in one platform.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start"
-            >
-              <Button
-                render={<Link href="/register" />}
-                nativeButton={false}
-                size="lg"
-                className="text-base px-8 gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow w-full sm:w-auto"
-              >
-                Start Free Trial
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button
-                render={<a href="#how-it-works" />}
-                nativeButton={false}
-                size="lg"
-                variant="outline"
-                className="text-base px-8 w-full sm:w-auto"
-              >
-                See How It Works
-              </Button>
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="text-xs text-muted-foreground mt-5"
-            >
-              Connects with Gmail & Outlook · Setup in under 5 minutes
-            </motion.p>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 text-center relative z-10">
+        {/* Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/8 text-blue-400 text-sm font-medium mb-8 backdrop-blur-sm">
+            14 days free · No credit card required
           </div>
+        </motion.div>
 
-          {/* Product mockup */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{
-              duration: 0.7,
-              delay: 0.3,
-              type: "spring",
-              stiffness: 100,
-            }}
-            className="relative"
+        {/* Main Headline */}
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6 text-white"
+        >
+          AI-powered support.
+          <br />
+          <span className="bg-linear-to-r from-blue-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent animate-gradient-x bg-size-[200%_auto]">
+            Zero friction.
+          </span>
+        </motion.h1>
+
+        {/* Subheadline */}
+        <motion.p
+          initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="text-lg sm:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed"
+        >
+          Turn emails into tickets automatically. AI-powered tagging, smart
+          assignment rules, and a real-time dashboard — all in one platform.
+        </motion.p>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.45 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center"
+        >
+          <Link
+            href="/register"
+            className="group relative inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-base font-semibold text-primary-foreground overflow-hidden shadow-lg shadow-primary/15 hover:shadow-primary/25 transition-shadow border border-primary/20"
           >
-            <div className="relative rounded-xl border border-border/50 bg-background shadow-2xl shadow-black/10 overflow-hidden">
-              {/* Browser frame header */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/30">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-400/80" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
-                  <div className="w-3 h-3 rounded-full bg-green-400/80" />
-                </div>
-                <div className="flex-1 flex justify-center">
-                  <div className="px-4 py-1 rounded-md bg-muted/50 text-xs text-muted-foreground font-mono">
-                    app.supporthub.io/dashboard
-                  </div>
-                </div>
-              </div>
-              {/* Screenshot */}
-              <Image
-                src="/screenshots/dashboard.png"
-                alt="SupportHub Dashboard"
-                width={1200}
-                height={800}
-                className="w-full h-auto"
-                priority
-              />
-            </div>
-            {/* Glow effects */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-blue-500/10 to-indigo-500/10 rounded-2xl blur-2xl -z-10" />
-          </motion.div>
-        </div>
+            <div className="absolute inset-0 bg-primary" />
+            <div className="absolute inset-0 bg-primary/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+            <span className="relative z-10">Start Free Trial</span>
+            <ArrowRight className="h-4 w-4 relative z-10 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+          <a
+            href="#how-it-works"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-base font-semibold text-white/70 border border-white/10 hover:border-white/20 hover:text-white hover:bg-white/3 transition-all duration-300"
+          >
+            See How It Works
+          </a>
+        </motion.div>
+
+        {/* Trust line */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="text-xs text-white/25 mt-8"
+        >
+          Connects with Gmail & Outlook · Setup in under 5 minutes
+        </motion.p>
       </div>
+
+      {/* Bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-[#0a0a12] to-transparent z-20" />
     </section>
   );
 }

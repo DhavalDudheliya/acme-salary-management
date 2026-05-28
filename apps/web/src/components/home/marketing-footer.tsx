@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Github, Twitter, Linkedin } from "lucide-react";
+import { Github, Twitter, Linkedin, ArrowUp } from "lucide-react";
 
 const footerLinks = [
   {
@@ -40,29 +40,34 @@ const socialLinks = [
 ];
 
 export function MarketingFooter() {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <footer className="border-t border-border/50 bg-muted/30">
+    <footer className="relative bg-[#0a0a12] border-t border-white/[0.04]">
+      {/* Animated gradient top border */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand column */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 mb-4">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-                <span className="text-primary-foreground font-bold text-sm">
-                  S
-                </span>
+            <Link href="/" className="flex items-center gap-2.5 mb-6 group">
+              <div className="h-8 w-8 rounded-lg bg-white/[0.05] border border-white/[0.1] flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
+                <span className="text-white font-bold text-sm">S</span>
               </div>
-              <span className="text-lg font-bold tracking-tight">
+              <span className="text-lg font-bold tracking-tight text-white">
                 SupportHub
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-6">
+            <p className="text-sm text-white/40 max-w-xs leading-relaxed mb-8">
               The modern customer support platform that turns emails into
               tickets automatically. Built for teams that care about speed and
               simplicity.
             </p>
             {/* Social icons */}
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
@@ -70,9 +75,9 @@ export function MarketingFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="h-9 w-9 rounded-lg border border-border/50 bg-background flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+                  className="text-white/30 hover:text-white transition-colors"
                 >
-                  <social.icon className="h-4 w-4" />
+                  <social.icon className="h-5 w-5" />
                 </a>
               ))}
             </div>
@@ -81,15 +86,18 @@ export function MarketingFooter() {
           {/* Link columns */}
           {footerLinks.map((group) => (
             <div key={group.title}>
-              <h4 className="text-sm font-semibold mb-4">{group.title}</h4>
-              <ul className="space-y-2.5">
+              <h4 className="text-sm font-semibold text-white mb-6">
+                {group.title}
+              </h4>
+              <ul className="space-y-4">
                 {group.links.map((link) => (
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-sm text-white/40 hover:text-white transition-colors relative group/link inline-block"
                     >
                       {link.label}
+                      <span className="absolute -bottom-1 left-0 w-0 h-px bg-white/30 group-hover/link:w-full transition-all duration-300" />
                     </a>
                   </li>
                 ))}
@@ -99,13 +107,22 @@ export function MarketingFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-8 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
+        <div className="mt-16 pt-8 border-t border-white/[0.04] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-white/30">
             &copy; {new Date().getFullYear()} SupportHub. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground">
-            Built with Next.js, React & Prisma
-          </p>
+          <div className="flex items-center gap-6">
+            <p className="text-xs text-white/20">
+              Designed with 🖤 for Support Teams
+            </p>
+            <button
+              onClick={scrollToTop}
+              className="p-2 rounded-full bg-white/[0.03] text-white/30 hover:text-white hover:bg-white/[0.08] transition-all"
+              aria-label="Scroll to top"
+            >
+              <ArrowUp className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
     </footer>

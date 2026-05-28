@@ -5,6 +5,7 @@
   "scripts": {
     "build": "turbo build",
     "build:api": "pnpm --filter api build",
+    "build:api:prod": "pnpm --filter api build:prod",
     "build:web": "pnpm --filter web build",
     "dev": "node ./scripts/start-docker.js && turbo dev",
     "dev:api": "pnpm --filter api dev",

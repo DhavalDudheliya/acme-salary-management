@@ -7,7 +7,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.build.json",
+    "prisma:generate": "pnpm exec prisma generate",
+    "build": "pnpm run prisma:generate && tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "seed": "dotenv -e .env -- tsx src/scripts/seed.ts"

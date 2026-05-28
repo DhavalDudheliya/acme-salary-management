@@ -22,6 +22,8 @@ import {
   refreshToken,
   me,
   lookupWorkspace,
+  forgotPassword,
+  resetPassword,
 } from "./auth.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 
@@ -33,6 +35,8 @@ router.get("/verify-email", verifyEmail);
 router.post("/resend-verification", resendVerification);
 router.post("/login", login);
 router.post("/lookup-workspace", lookupWorkspace);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 router.post("/refresh-token", refreshToken);
 
 // --- Protected Routes ---

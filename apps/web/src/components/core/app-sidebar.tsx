@@ -34,12 +34,12 @@ const mainNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: TicketCheck, label: "Tickets", href: "/tickets" },
   { icon: Users, label: "Customers", href: "/customers" },
-  { icon: BarChart3, label: "Reporting", href: "/reporting" },
+  { icon: BarChart3, label: "Reporting", href: "/reporting", adminOnly: true },
   { icon: Zap, label: "Automation", href: "/automation", adminOnly: true },
 ];
 
 const bottomNavItems = [
-  { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: Settings, label: "Settings", href: "/settings", adminOnly: true },
   { icon: HelpCircle, label: "Help", href: "/help" },
 ];
 
@@ -115,32 +115,34 @@ export default function AppSidebar() {
 
       {/* Bottom Navigation */}
       <div className="flex flex-col items-center gap-1">
-        {bottomNavItems.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Tooltip key={item.href}>
-              <TooltipTrigger
-                render={
-                  <Link
-                    href={item.href}
-                    aria-label={item.label}
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
-                      active
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                    )}
-                  />
-                }
-              >
-                <item.icon className="h-5 w-5" />
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>
-                {item.label}
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
+        {bottomNavItems
+          .filter((item) => !item.adminOnly || isAdmin)
+          .map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Tooltip key={item.href}>
+                <TooltipTrigger
+                  render={
+                    <Link
+                      href={item.href}
+                      aria-label={item.label}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                        active
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                      )}
+                    />
+                  }
+                >
+                  <item.icon className="h-5 w-5" />
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}>
+                  {item.label}
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
       </div>
     </aside>
   );

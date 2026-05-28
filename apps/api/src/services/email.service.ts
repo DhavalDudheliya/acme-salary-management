@@ -98,3 +98,65 @@ export async function sendVerificationEmail(
     );
   }
 }
+
+/**
+ * Send a password reset email with a one-time reset link.
+ */
+export async function sendPasswordResetEmail(
+  to: string,
+  token: string,
+  subdomain: string,
+): Promise<void> {
+  const frontendDomain = process.env.FRONTEND_DOMAIN || "localhost:3000";
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+  const resetLink = `${protocol}://${subdomain}.${frontendDomain}/reset-password?token=${token}`;
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || '"SupportHub" <noreply@supporthub.com>',
+    to,
+    subject: "Reset your SupportHub password",
+    html: `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #1a1a2e; margin: 0; font-size: 28px;">SupportHub</h1>
+        </div>
+        <div style="background: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+          <h2 style="color: #1a1a2e; margin-top: 0;">Reset your password</h2>
+          <p style="color: #4a4a68; font-size: 16px; line-height: 1.6;">
+            We received a forgot password request for your SupportHub account in
+            <strong>${subdomain}</strong>.
+          </p>
+          <p style="color: #4a4a68; font-size: 16px; line-height: 1.6;">
+            If this was you, use the button below to choose a new password. This
+            link expires in 1 hour. If you did not request this, you can safely
+            ignore this email.
+          </p>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${resetLink}"
+               style="background: #6366f1; color: #ffffff; padding: 14px 32px; border-radius: 8px;
+                      text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block;">
+              Reset Password
+            </a>
+          </div>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+          <p style="color: #b0b0c0; font-size: 12px;">
+            If the button above doesn't work, copy and paste this URL into your browser:<br/>
+            <a href="${resetLink}" style="color: #6366f1; word-break: break-all;">${resetLink}</a>
+          </p>
+        </div>
+      </div>
+    `,
+  };
+
+  const info = await transporter.sendMail(mailOptions);
+
+  if (
+    process.env.SMTP_HOST === "smtp.ethereal.email" ||
+    !process.env.SMTP_HOST
+  ) {
+    logger.info(
+      { previewUrl: nodemailer.getTestMessageUrl(info) },
+      "Email preview URL (Ethereal)",
+    );
+  }
+}

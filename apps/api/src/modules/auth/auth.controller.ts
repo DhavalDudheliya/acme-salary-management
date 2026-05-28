@@ -21,6 +21,8 @@ import {
   refreshUserToken,
   getUserProfile,
   lookupUserWorkspace,
+  forgotPasswordForEmail,
+  resetPassword as resetPasswordInService,
 } from "./auth.service.js";
 import {
   registerSchema,
@@ -28,6 +30,8 @@ import {
   lookupWorkspaceSchema,
   refreshTokenSchema,
   resendVerificationSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./auth.validation.js";
 import { AuthenticatedRequest } from "./auth.types.js";
 
@@ -176,5 +180,34 @@ export async function lookupWorkspace(
 ): Promise<void> {
   const data = lookupWorkspaceSchema.parse(req.body);
   const result = await lookupUserWorkspace(data.email);
+  res.status(200).json(result);
+}
+
+/**
+ * POST /api/auth/forgot-password
+ *
+ * Sends a password reset email for a password help request.
+ * Uses a generic success message to avoid email enumeration.
+ */
+export async function forgotPassword(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const data = forgotPasswordSchema.parse(req.body);
+  const result = await forgotPasswordForEmail(data);
+  res.status(200).json(result);
+}
+
+/**
+ * POST /api/auth/reset-password
+ *
+ * Resets the user's password from a valid reset token.
+ */
+export async function resetPassword(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const data = resetPasswordSchema.parse(req.body);
+  const result = await resetPasswordInService(data);
   res.status(200).json(result);
 }

@@ -24,6 +24,14 @@ import {
 } from "@supporthub/ui/components/alert";
 import { Button } from "@supporthub/ui/components/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@supporthub/ui/components/dialog";
+import {
   Field,
   FieldError,
   FieldGroup,
@@ -39,7 +47,10 @@ import {
 
 import { useAuth } from "@/lib/auth-context";
 import { authService } from "@/lib/services/auth.service";
-import { loginSchema } from "@/lib/validations/auth.schema";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+} from "@/lib/validations/auth.schema";
 
 type LoginValues = {
   email: string;
@@ -55,6 +66,8 @@ type LoginValues = {
  */
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const [isForgotPasswordSending, setIsForgotPasswordSending] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [workspaceName, setWorkspaceName] = useState<string>("Your Workspace");
@@ -96,6 +109,18 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
+  const {
+    register: registerForgotPassword,
+    handleSubmit: handleForgotPasswordSubmit,
+    reset: resetForgotPasswordForm,
+    formState: { errors: forgotPasswordErrors },
+  } = useForm<{ email: string }>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
   const onSubmit = async (data: LoginValues) => {
     setIsLoading(true);
     setApiError(null);
@@ -117,6 +142,27 @@ export default function LoginForm() {
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const onForgotPasswordSubmit = async (data: { email: string }) => {
+    setIsForgotPasswordSending(true);
+
+    try {
+      const result = await authService.forgotPassword(data.email);
+      toast.success(result.message);
+      resetForgotPasswordForm();
+      setIsForgotPasswordOpen(false);
+    } catch (error: unknown) {
+      console.error("Forgot password error:", error);
+      const err = error as any;
+      toast.error(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Failed to send password reset email.",
+      );
+    } finally {
+      setIsForgotPasswordSending(false);
     }
   };
 
@@ -175,12 +221,13 @@ export default function LoginForm() {
           <Field>
             <div className="flex items-center justify-between">
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <a
-                href="#"
+              <button
+                type="button"
+                onClick={() => setIsForgotPasswordOpen(true)}
                 className="text-sm font-semibold text-primary hover:text-primary/80"
               >
                 Forgot password?
-              </a>
+              </button>
             </div>
             <InputGroup className="h-10">
               <InputGroupAddon>
@@ -225,6 +272,73 @@ export default function LoginForm() {
           </Button>
         </FieldGroup>
       </form>
+
+      <Dialog
+        open={isForgotPasswordOpen}
+        onOpenChange={(open) => {
+          setIsForgotPasswordOpen(open);
+          if (!open) {
+            resetForgotPasswordForm();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Forgot your password?</DialogTitle>
+            <DialogDescription>
+              Enter your email address and we&apos;ll send a password reset link
+              if the account exists.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form
+            id="forgot-password-form"
+            onSubmit={handleForgotPasswordSubmit(onForgotPasswordSubmit)}
+            className="space-y-4"
+          >
+            <Field>
+              <FieldLabel htmlFor="forgot-password-email">Email</FieldLabel>
+              <InputGroup className="h-10">
+                <InputGroupAddon>
+                  <InputGroupText>
+                    <Mail aria-hidden="true" />
+                  </InputGroupText>
+                </InputGroupAddon>
+                <InputGroupInput
+                  id="forgot-password-email"
+                  type="email"
+                  autoComplete="email"
+                  aria-invalid={!!forgotPasswordErrors.email}
+                  placeholder="you@company.com"
+                  {...registerForgotPassword("email")}
+                />
+              </InputGroup>
+              <FieldError errors={[forgotPasswordErrors.email]} />
+            </Field>
+          </form>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsForgotPasswordOpen(false)}
+              disabled={isForgotPasswordSending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form="forgot-password-form"
+              disabled={isForgotPasswordSending}
+            >
+              {isForgotPasswordSending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Send Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

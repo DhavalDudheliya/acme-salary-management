@@ -84,4 +84,23 @@ export const authService = {
     const response = await api.post("/auth/resend-verification", { email });
     return response.data;
   },
+
+  /**
+   * Request password help by email
+   */
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const response = await api.post("/auth/forgot-password", { email });
+    return response.data;
+  },
+
+  /**
+   * Reset a password from a reset token
+   */
+  async resetPassword(data: {
+    token: string;
+    password: string;
+  }): Promise<{ message: string }> {
+    const response = await api.post("/auth/reset-password", data);
+    return response.data;
+  },
 };

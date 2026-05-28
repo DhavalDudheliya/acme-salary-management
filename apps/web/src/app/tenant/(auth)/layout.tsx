@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
+import { cn } from "@supporthub/ui/lib/utils";
 
 /**
  * AuthLayout — Layout for login/register pages.
@@ -11,6 +13,10 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isAcceptInvitePage = pathname?.includes("/accept-invite");
+  const isResetPasswordPage = pathname?.includes("/reset-password");
+
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background px-4">
       <style jsx>{`
@@ -59,7 +65,14 @@ export default function AuthLayout({
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-sm">{children}</div>
+      <div
+        className={cn(
+          "relative z-10 w-full",
+          isAcceptInvitePage || isResetPasswordPage ? "max-w-xl" : "max-w-sm",
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }

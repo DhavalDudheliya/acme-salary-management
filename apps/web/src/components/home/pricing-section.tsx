@@ -143,6 +143,7 @@ export function PricingSection() {
               {/* CTA */}
               <Button
                 render={<Link href={tier.ctaHref} />}
+                nativeButton={false}
                 variant={tier.highlighted ? "default" : "outline"}
                 className={cn(
                   "w-full",

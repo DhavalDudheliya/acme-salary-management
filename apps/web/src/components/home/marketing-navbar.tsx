@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import { cn } from "@supporthub/ui/lib/utils";
-import { Button } from "@supporthub/ui/components/button";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
@@ -17,6 +16,8 @@ const navLinks = [
 export function MarketingNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -30,22 +31,32 @@ export function MarketingNavbar() {
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         scrolled
-          ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
+          ? "bg-[#0a0a12]/80 backdrop-blur-2xl border-b border-white/6 shadow-lg shadow-black/20"
           : "bg-transparent",
       )}
     >
+      {/* Scroll progress bar */}
+      <motion.div
+        className="absolute bottom-0 left-0 h-px bg-primary"
+        style={{ width: progressWidth }}
+      />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-md shadow-primary/25 group-hover:shadow-primary/40 transition-shadow">
-              <span className="text-primary-foreground font-bold text-sm">
+            <div className="relative h-8 w-8 rounded-lg bg-linear-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow overflow-hidden">
+              <span className="text-white font-bold text-sm relative z-10">
                 S
               </span>
+              {/* Shimmer */}
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
             </div>
-            <span className="text-lg font-bold tracking-tight">SupportHub</span>
+            <span className="text-lg font-bold tracking-tight text-white">
+              SupportHub
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -54,36 +65,39 @@ export function MarketingNavbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50"
+                className="relative px-3.5 py-2 text-sm font-medium text-white/50 hover:text-white transition-colors duration-200 rounded-lg group"
               >
-                {link.label}
+                <span className="relative z-10">{link.label}</span>
+                <div className="absolute inset-0 rounded-lg bg-white/4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
               </a>
             ))}
           </nav>
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
-            <Button
-              render={<Link href="/login" />}
-              nativeButton={false}
-              variant="ghost"
-              size="sm"
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm font-medium text-white/60 hover:text-white transition-colors"
             >
               Login
-            </Button>
-            <Button
-              render={<Link href="/register" />}
-              nativeButton={false}
-              size="sm"
+            </Link>
+            <Link
+              href="/register"
+              className="relative group px-5 py-2 rounded-lg text-sm font-medium text-primary-foreground overflow-hidden border border-primary/20 shadow-md shadow-primary/10 hover:shadow-primary/20 transition-all duration-300"
             >
-              Start Free Trial
-            </Button>
+              {/* Animated gradient background */}
+              <div className="absolute inset-0 bg-primary rounded-lg" />
+              <div className="absolute inset-0 bg-primary/90 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Shimmer */}
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+              <span className="relative z-10">Start Free Trial</span>
+            </Link>
           </div>
 
           {/* Mobile menu toggle */}
           <button
             type="button"
-            className="md:hidden p-2 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+            className="md:hidden p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? (
@@ -103,42 +117,34 @@ export function MarketingNavbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border"
+            className="md:hidden bg-[#0a0a12]/95 backdrop-blur-2xl border-b border-white/6"
           >
-            <div className="px-4 py-4 space-y-2">
+            <div className="px-4 py-4 space-y-1">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground rounded-md hover:bg-muted/50 transition-colors"
+                  className="block px-4 py-3 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/4 transition-colors"
                 >
                   {link.label}
                 </a>
               ))}
-              <div className="flex flex-col gap-2 pt-4 border-t border-border/50">
-                <Button
-                  render={
-                    <Link href="/login" onClick={() => setMobileOpen(false)} />
-                  }
-                  nativeButton={false}
-                  variant="outline"
-                  className="w-full"
+              <div className="flex flex-col gap-2 pt-4 border-t border-white/6">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="w-full px-4 py-2.5 text-center text-sm font-medium text-white/60 hover:text-white rounded-lg border border-white/8 hover:border-white/15 transition-all"
                 >
                   Login
-                </Button>
-                <Button
-                  render={
-                    <Link
-                      href="/register"
-                      onClick={() => setMobileOpen(false)}
-                    />
-                  }
-                  nativeButton={false}
-                  className="w-full"
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileOpen(false)}
+                  className="w-full px-4 py-2.5 text-center text-sm font-medium text-primary-foreground bg-primary border border-primary/20 rounded-lg hover:bg-primary/90 shadow-md shadow-primary/10 transition-all duration-300"
                 >
                   Start Free Trial
-                </Button>
+                </Link>
               </div>
             </div>
           </motion.div>

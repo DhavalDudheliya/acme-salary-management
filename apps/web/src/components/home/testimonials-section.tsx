@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Star } from "lucide-react";
+import { Star, Quote } from "lucide-react";
 
 const testimonials = [
   {
@@ -11,7 +11,7 @@ const testimonials = [
     name: "Sarah Chen",
     role: "Head of Support",
     company: "TechFlow",
-    initials: "SC",
+    avatar: "https://i.pravatar.cc/80?img=1",
   },
   {
     quote:
@@ -19,7 +19,7 @@ const testimonials = [
     name: "Marcus Rivera",
     role: "VP of Customer Success",
     company: "CloudBase",
-    initials: "MR",
+    avatar: "https://i.pravatar.cc/80?img=3",
   },
   {
     quote:
@@ -27,73 +27,164 @@ const testimonials = [
     name: "Priya Patel",
     role: "Support Operations Lead",
     company: "DataSync",
-    initials: "PP",
+    avatar: "https://i.pravatar.cc/80?img=5",
+  },
+  {
+    quote:
+      "The multi-tenant workspace feature is incredible. We manage support for 12 brands from a single dashboard without any overlap.",
+    name: "David Kim",
+    role: "CTO",
+    company: "Nextera",
+    avatar: "https://i.pravatar.cc/80?img=8",
+  },
+  {
+    quote:
+      "Best support tool we've ever used. The real-time WebSocket updates mean we never miss a ticket. Our CSAT went from 78% to 96%.",
+    name: "Emily Foster",
+    role: "Customer Experience Director",
+    company: "Streamline",
+    avatar: "https://i.pravatar.cc/80?img=9",
+  },
+  {
+    quote:
+      "The AI confidence scores give us full transparency into how tickets are classified. Our team trusts the system completely.",
+    name: "Alex Nakamura",
+    role: "Head of Engineering",
+    company: "Orbis",
+    avatar: "https://i.pravatar.cc/80?img=11",
   },
 ];
 
-export function TestimonialsSection() {
+function TestimonialCard({
+  testimonial,
+}: {
+  testimonial: (typeof testimonials)[0];
+}) {
   return (
-    <section className="py-24 sm:py-32 bg-muted/20">
+    <div className="flex-shrink-0 w-[340px] sm:w-[380px] mx-3 group">
+      <div className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 hover:border-white/[0.1] hover:bg-white/[0.03] transition-all duration-500 h-full">
+        {/* Quote icon */}
+        <Quote className="h-6 w-6 text-white/[0.04] mb-4" />
+
+        {/* Stars */}
+        <div className="flex gap-0.5 mb-4">
+          {Array.from({ length: 5 }).map((_, j) => (
+            <Star
+              key={j}
+              className="h-3.5 w-3.5 fill-amber-400/70 text-amber-400/70"
+            />
+          ))}
+        </div>
+
+        {/* Quote */}
+        <blockquote className="text-sm text-white/45 leading-relaxed mb-6">
+          &ldquo;{testimonial.quote}&rdquo;
+        </blockquote>
+
+        {/* Author */}
+        <div className="flex items-center gap-3 pt-4 border-t border-white/[0.04]">
+          <img
+            src={testimonial.avatar}
+            alt={testimonial.name}
+            className="h-9 w-9 rounded-full object-cover ring-1 ring-white/[0.06]"
+          />
+          <div>
+            <p className="text-sm font-semibold text-white/70">
+              {testimonial.name}
+            </p>
+            <p className="text-[10px] text-white/25">
+              {testimonial.role}, {testimonial.company}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function TestimonialsSection() {
+  const row1 = [
+    ...testimonials.slice(0, 3),
+    ...testimonials.slice(0, 3),
+    ...testimonials.slice(0, 3),
+  ];
+  const row2 = [
+    ...testimonials.slice(3, 6),
+    ...testimonials.slice(3, 6),
+    ...testimonials.slice(3, 6),
+  ];
+
+  return (
+    <section className="py-24 sm:py-32 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
+          <p className="text-sm font-semibold text-amber-400 tracking-wide uppercase mb-3">
+            Testimonials
+          </p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">
             Loved by support teams
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-white/40 max-w-2xl mx-auto">
             See why teams are switching to SupportHub for their customer support
             operations.
           </p>
         </motion.div>
+      </div>
 
-        {/* Testimonials grid */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {testimonials.map((item, i) => (
-            <motion.div
-              key={item.name}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="relative flex flex-col rounded-xl border border-border/60 bg-background p-6 shadow-sm"
-            >
-              {/* Stars */}
-              <div className="flex gap-0.5 mb-4">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star
-                    key={j}
-                    className="h-4 w-4 fill-amber-400 text-amber-400"
-                  />
-                ))}
-              </div>
+      {/* Dual-row marquee */}
+      <div className="relative">
+        {/* Fade edges */}
+        <div className="absolute left-0 top-0 bottom-0 w-32 sm:w-48 bg-gradient-to-r from-[#0a0a12] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 sm:w-48 bg-gradient-to-l from-[#0a0a12] to-transparent z-10 pointer-events-none" />
 
-              {/* Quote */}
-              <blockquote className="text-sm text-foreground/80 leading-relaxed flex-1 mb-6">
-                &ldquo;{item.quote}&rdquo;
-              </blockquote>
+        {/* Row 1 — scrolls left */}
+        <div className="flex mb-4 animate-marquee-left">
+          {row1.map((t, i) => (
+            <TestimonialCard key={`r1-${i}`} testimonial={t} />
+          ))}
+        </div>
 
-              {/* Author */}
-              <div className="flex items-center gap-3 pt-4 border-t border-border/50">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                  {item.initials}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">{item.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.role}, {item.company}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+        {/* Row 2 — scrolls right */}
+        <div className="flex animate-marquee-right">
+          {row2.map((t, i) => (
+            <TestimonialCard key={`r2-${i}`} testimonial={t} />
           ))}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes marquee-left {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-33.333%);
+          }
+        }
+        @keyframes marquee-right {
+          from {
+            transform: translateX(-33.333%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+        .animate-marquee-left {
+          animation: marquee-left 45s linear infinite;
+          will-change: transform;
+        }
+        .animate-marquee-right {
+          animation: marquee-right 50s linear infinite;
+          will-change: transform;
+        }
+      `}</style>
     </section>
   );
 }

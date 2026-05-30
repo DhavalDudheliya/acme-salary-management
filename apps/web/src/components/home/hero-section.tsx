@@ -65,6 +65,9 @@ export function HeroSection() {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6 text-white"
         >
+          <span className="block text-2xl sm:text-3xl font-semibold text-white/60 mb-3 tracking-widest uppercase">
+            SupportHub
+          </span>
           AI-powered support.
           <br />
           <span className="bg-linear-to-r from-blue-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent animate-gradient-x bg-size-[200%_auto]">
@@ -72,17 +75,20 @@ export function HeroSection() {
           </span>
         </motion.h1>
 
-        {/* Subheadline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="text-lg sm:text-xl text-white/50 max-w-3xl mx-auto mb-10 leading-relaxed"
-        >
-          SupportHub is an AI-powered support platform that turns emails into
-          tickets, automatically assigns them, and enables real-time team
-          collaboration.
-        </motion.p>
+        {/* Subheadline — static for crawlers, animated for users */}
+        <p className="text-lg sm:text-xl text-white/50 max-w-3xl mx-auto mb-10 leading-relaxed">
+          <motion.span
+            initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="block"
+          >
+            SupportHub is an AI-powered customer support ticketing system that
+            connects with Gmail and Outlook — automatically converting inbound
+            emails into structured tickets, routing them to the right agents,
+            and enabling real-time team collaboration.
+          </motion.span>
+        </p>
 
         {/* CTA Buttons */}
         <motion.div

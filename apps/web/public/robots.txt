@@ -1,0 +1,14 @@
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+Allow: /
+Allow: /privacy
+Allow: /terms
+Disallow: /tenant/
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+Disallow: /api/
+Disallow: /_next/
+
+Sitemap: https://supporthub.bond/sitemap.xml

@@ -73,8 +73,8 @@ export function AISection() {
     <section className="py-24 sm:py-32 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/3 left-0 w-[500px] h-[500px] bg-violet-600/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-blue-600/4 rounded-full blur-[120px]" />
+        <div className="absolute top-1/3 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-primary/4 rounded-full blur-[120px]" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -186,7 +186,7 @@ export function AISection() {
             </div>
 
             {/* Ambient glow */}
-            <div className="absolute -inset-4 bg-gradient-to-br from-violet-600/8 to-blue-600/8 rounded-3xl blur-2xl -z-10" />
+            <div className="absolute -inset-4 bg-gradient-to-br from-primary/8 to-primary/8 rounded-3xl blur-2xl -z-10" />
           </motion.div>
 
           {/* Text content */}
@@ -197,7 +197,7 @@ export function AISection() {
             transition={{ duration: 0.6 }}
             className="order-1 lg:order-2"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/15 text-violet-400 text-xs font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/15 text-primary text-xs font-semibold mb-6">
               <Brain className="h-3.5 w-3.5" />
               AI-Powered
             </div>
@@ -230,10 +230,10 @@ export function AISection() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}
-                  className="flex items-start gap-3"
+                  className="flex items-center gap-3"
                 >
-                  <div className="mt-0.5 h-6 w-6 rounded-lg bg-violet-500/10 border border-violet-500/15 flex items-center justify-center flex-shrink-0">
-                    <item.icon className="h-3 w-3 text-violet-400" />
+                  <div className="mt-0.5 h-6 w-6 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center flex-shrink-0">
+                    <item.icon className="h-3 w-3 text-primary" />
                   </div>
                   <span className="text-sm text-white/40">{item.text}</span>
                 </motion.li>

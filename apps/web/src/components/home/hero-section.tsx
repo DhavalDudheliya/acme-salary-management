@@ -77,10 +77,11 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="text-lg sm:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="text-lg sm:text-xl text-white/50 max-w-3xl mx-auto mb-10 leading-relaxed"
         >
-          Turn emails into tickets automatically. AI-powered tagging, smart
-          assignment rules, and a real-time dashboard — all in one platform.
+          SupportHub is an AI-powered support platform that turns emails into
+          tickets, automatically assigns them, and enables real-time team
+          collaboration.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -92,6 +93,7 @@ export function HeroSection() {
         >
           <Link
             href="/register"
+            id="cta-start-trial"
             className="group relative inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-base font-semibold text-primary-foreground overflow-hidden shadow-lg shadow-primary/15 hover:shadow-primary/25 transition-shadow border border-primary/20"
           >
             <div className="absolute inset-0 bg-primary" />
@@ -102,6 +104,7 @@ export function HeroSection() {
           </Link>
           <a
             href="#how-it-works"
+            id="cta-see-how-it-works"
             className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-base font-semibold text-white/70 border border-white/10 hover:border-white/20 hover:text-white hover:bg-white/3 transition-all duration-300"
           >
             See How It Works

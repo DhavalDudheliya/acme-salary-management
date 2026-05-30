@@ -53,13 +53,33 @@ const sections = [
           sender details, subject, body, and attachments.
         </p>
         <p className="font-semibold text-white mt-4 mb-2">
-          C. Third-Party Integrations
+          C. Third-Party Integrations & Google API Limited Use Compliance
         </p>
         <p>
           If you link your workspace to external email providers like Gmail or
           Microsoft Outlook, we collect OAuth tokens to authenticate and sync
           inbox messages. We only access and store the message payloads
           necessary to create and manage support tickets.
+        </p>
+        <p className="mt-2 text-[#6366f1] font-medium leading-relaxed bg-[#6366f1]/5 border border-[#6366f1]/15 rounded-xl p-4 my-3">
+          SupportHub&apos;s use and transfer to any other app of information
+          received from Google APIs will adhere to the{" "}
+          <a
+            href="https://developers.google.com/terms/api-services-user-data-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-[#818cf8] transition-colors"
+          >
+            Google API Services User Data Policy
+          </a>
+          , including the Limited Use requirements.
+        </p>
+        <p className="mt-2">
+          Specifically, any information received from Gmail APIs via OAuth (e.g.
+          read-only email sync) is strictly restricted to executing core
+          ticketing operations within your workspace and is never utilized or
+          shared for targeted advertisements, behavioral analysis, user
+          profiling, or selling to third-party databases.
         </p>
         <p className="font-semibold text-white mt-4 mb-2">
           D. Usage & Device Information

@@ -83,7 +83,7 @@ export default function RegistrationSuccess({
     if (subdomain) {
       const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
       const rootDomain =
-        process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3000";
+        process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost:3001";
       window.location.href = `${protocol}://${subdomain}.${rootDomain}/login`;
     } else {
       router.push("/login");
@@ -117,7 +117,7 @@ export default function RegistrationSuccess({
           </p>
           <div className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 font-mono text-sm text-foreground shadow-sm">
             <span className="font-semibold text-primary">{subdomain}</span>
-            <span className="text-muted-foreground">.supporthub.com</span>
+            <span className="text-muted-foreground">.supporthub.bond</span>
           </div>
         </div>
 

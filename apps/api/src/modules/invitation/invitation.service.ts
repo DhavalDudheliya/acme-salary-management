@@ -72,7 +72,7 @@ export async function createInvitation(
   // TODO: Actually send the email using an email service
   console.log(`[EMAIL SIMULATION] Sending invitation email to ${data.email}.`);
   console.log(
-    `[EMAIL SIMULATION] Link: http://localhost:3000/tenant/accept-invite?token=${token}`,
+    `[EMAIL SIMULATION] Link: http://localhost:3001/tenant/accept-invite?token=${token}`,
   );
 
   return invitation;

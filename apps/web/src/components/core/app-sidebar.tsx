@@ -68,16 +68,20 @@ export default function AppSidebar() {
       <Link
         href="/dashboard"
         aria-label="Dashboard"
-        className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform hover:scale-105 overflow-hidden"
+        className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg transition-transform hover:scale-105 overflow-hidden"
       >
         {theme?.logoUrl ? (
           <img
             src={theme.logoUrl}
             alt="Workspace logo"
-            className="h-6 w-6 object-contain"
+            className="h-10 w-10 object-contain"
           />
         ) : (
-          <TicketCheck className="h-5 w-5" />
+          <img
+            src="/logos/icon.png"
+            alt="SupportHub logo"
+            className="h-10 w-10 object-contain"
+          />
         )}
       </Link>
 

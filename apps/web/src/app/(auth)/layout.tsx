@@ -27,14 +27,13 @@ export default function AuthLayout({
         <div className="relative z-10">
           <Link
             href="/"
-            className="mb-16 flex items-center gap-2 hover:opacity-90 transition-opacity w-fit"
+            className="mb-16 flex items-center hover:opacity-90 transition-opacity w-fit"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-foreground">
-              <span className="text-xl font-bold text-primary">S</span>
-            </div>
-            <span className="text-2xl font-semibold tracking-tight text-primary-foreground">
-              SupportHub
-            </span>
+            <img
+              src="/logos/logo.png"
+              alt="SupportHub"
+              className="h-8 w-auto object-contain brightness-0 invert"
+            />
           </Link>
 
           <h1 className="mb-6 text-5xl leading-tight font-bold">

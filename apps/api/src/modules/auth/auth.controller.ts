@@ -71,7 +71,7 @@ export async function verifyEmail(req: Request, res: Response): Promise<void> {
 
   // Verify the token and get the user's domain subdomain for redirect
   const result = await verifyUserEmail(token);
-  const frontendDomain = process.env.FRONTEND_DOMAIN || "localhost:3000";
+  const frontendDomain = process.env.FRONTEND_DOMAIN || "localhost:3001";
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   res.redirect(
     `${protocol}://${result.subdomain}.${frontendDomain}/login?verified=true`,

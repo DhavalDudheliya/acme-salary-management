@@ -28,7 +28,7 @@ export function ThemePreview({ logoUrl }: ThemePreviewProps) {
         {/* Mini Sidebar */}
         <div className="flex w-14 flex-col items-center border-r border-border bg-sidebar py-4 gap-3">
           {/* Logo */}
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground mb-4 shadow-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 mb-4 shadow-sm overflow-hidden">
             {logoUrl ? (
               <img
                 src={logoUrl}
@@ -36,7 +36,11 @@ export function ThemePreview({ logoUrl }: ThemePreviewProps) {
                 className="h-5 w-5 object-contain"
               />
             ) : (
-              <TicketCheck className="h-4 w-4" />
+              <img
+                src="/logos/icon.png"
+                alt="SupportHub logo"
+                className="h-5 w-5 object-contain"
+              />
             )}
           </div>
 

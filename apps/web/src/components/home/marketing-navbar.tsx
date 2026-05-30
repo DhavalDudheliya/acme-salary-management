@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import { cn } from "@supporthub/ui/lib/utils";
 import { Menu, X } from "lucide-react";
@@ -14,6 +15,8 @@ const navLinks = [
 ];
 
 export function MarketingNavbar() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { scrollYProgress } = useScroll();
@@ -46,31 +49,35 @@ export function MarketingNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative h-8 w-8 rounded-lg bg-linear-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow overflow-hidden">
-              <span className="text-white font-bold text-sm relative z-10">
-                S
-              </span>
-              {/* Shimmer */}
-              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-white">
-              SupportHub
-            </span>
+          <Link href="/" className="flex items-center group">
+            <img
+              src="/logos/logo.png"
+              alt="SupportHub"
+              className="h-8 w-auto object-contain transition-opacity hover:opacity-90"
+            />
           </Link>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="relative px-3.5 py-2 text-sm font-medium text-white/50 hover:text-white transition-colors duration-200 rounded-lg group"
-              >
-                <span className="relative z-10">{link.label}</span>
-                <div className="absolute inset-0 rounded-lg bg-white/4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isHashLink = link.href.startsWith("#");
+              const resolvedHref = isHashLink
+                ? isHome
+                  ? link.href
+                  : `/${link.href}`
+                : link.href;
+
+              return (
+                <Link
+                  key={link.href}
+                  href={resolvedHref}
+                  className="relative px-3.5 py-2 text-sm font-medium text-white/50 hover:text-white transition-colors duration-200 rounded-lg group"
+                >
+                  <span className="relative z-10">{link.label}</span>
+                  <div className="absolute inset-0 rounded-lg bg-white/4 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Desktop CTAs */}
@@ -120,16 +127,25 @@ export function MarketingNavbar() {
             className="md:hidden bg-[#0a0a12]/95 backdrop-blur-2xl border-b border-white/6"
           >
             <div className="px-4 py-4 space-y-1">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-4 py-3 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/4 transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) => {
+                const isHashLink = link.href.startsWith("#");
+                const resolvedHref = isHashLink
+                  ? isHome
+                    ? link.href
+                    : `/${link.href}`
+                  : link.href;
+
+                return (
+                  <Link
+                    key={link.href}
+                    href={resolvedHref}
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-4 py-3 text-sm font-medium text-white/60 hover:text-white rounded-lg hover:bg-white/4 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
               <div className="flex flex-col gap-2 pt-4 border-t border-white/6">
                 <Link
                   href="/login"

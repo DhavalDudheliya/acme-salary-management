@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Github, Twitter, Linkedin, ArrowUp } from "lucide-react";
 
 const footerLinks = [
@@ -26,9 +27,8 @@ const footerLinks = [
   {
     title: "Legal",
     links: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-      { label: "Cookie Policy", href: "#" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Service", href: "/terms" },
     ],
   },
 ];
@@ -40,6 +40,9 @@ const socialLinks = [
 ];
 
 export function MarketingFooter() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -53,13 +56,12 @@ export function MarketingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand column */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 mb-6 group">
-              <div className="h-8 w-8 rounded-lg bg-white/[0.05] border border-white/[0.1] flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
-                <span className="text-white font-bold text-sm">S</span>
-              </div>
-              <span className="text-lg font-bold tracking-tight text-white">
-                SupportHub
-              </span>
+            <Link href="/" className="flex items-center mb-6 group">
+              <img
+                src="/logos/logo.png"
+                alt="SupportHub"
+                className="h-8 w-auto object-contain transition-opacity hover:opacity-90"
+              />
             </Link>
             <p className="text-sm text-white/40 max-w-xs leading-relaxed mb-8">
               The modern customer support platform that turns emails into
@@ -90,17 +92,27 @@ export function MarketingFooter() {
                 {group.title}
               </h4>
               <ul className="space-y-4">
-                {group.links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-white/40 hover:text-white transition-colors relative group/link inline-block"
-                    >
-                      {link.label}
-                      <span className="absolute -bottom-1 left-0 w-0 h-px bg-white/30 group-hover/link:w-full transition-all duration-300" />
-                    </a>
-                  </li>
-                ))}
+                {group.links.map((link) => {
+                  const isHashLink =
+                    link.href.startsWith("#") && link.href !== "#";
+                  const resolvedHref = isHashLink
+                    ? isHome
+                      ? link.href
+                      : `/${link.href}`
+                    : link.href;
+
+                  return (
+                    <li key={link.label}>
+                      <Link
+                        href={resolvedHref}
+                        className="text-sm text-white/40 hover:text-white transition-colors relative group/link inline-block"
+                      >
+                        {link.label}
+                        <span className="absolute -bottom-1 left-0 w-0 h-px bg-white/30 group-hover/link:w-full transition-all duration-300" />
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

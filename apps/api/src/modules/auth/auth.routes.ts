@@ -1,7 +1,7 @@
 /**
  * Auth Module — Route Definitions
  *
- * Mounts all authentication endpoints under /api/auth (set in index.ts).
+ * Mounts all authentication endpoints under /api/v1/auth (set in routes.ts).
  *
  * Public routes (no token required):
  *   POST /register       — Create account + workspace

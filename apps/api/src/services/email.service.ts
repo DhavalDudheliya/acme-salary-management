@@ -48,7 +48,7 @@ export async function sendVerificationEmail(
 ): Promise<void> {
   // Build the full verification URL pointing to the backend endpoint
   const appUrl = process.env.APP_URL || "http://localhost:5000";
-  const verifyLink = `${appUrl}/api/auth/verify-email?token=${token}`;
+  const verifyLink = `${appUrl}/api/v1/auth/verify-email?token=${token}`;
 
   const mailOptions = {
     from: process.env.SMTP_FROM || '"SupportHub" <noreply@supporthub.com>',

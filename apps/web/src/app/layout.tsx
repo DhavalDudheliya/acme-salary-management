@@ -18,8 +18,53 @@ const fontMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SupportHub | Customer Support Platform",
-  description: "Customer support made simple with multi-tenant workspaces.",
+  title: {
+    default: "SupportHub | AI-Powered Customer Support Ticketing System",
+    template: "%s | SupportHub",
+  },
+  description:
+    "SupportHub is an AI-powered customer support ticketing system that connects with Gmail and Outlook. Convert inbound support emails into structured tickets automatically, route them to the right agents, and resolve customer issues in real-time.",
+  keywords: [
+    "customer support",
+    "helpdesk",
+    "ticketing system",
+    "AI customer service",
+    "Gmail support integration",
+    "Outlook ticketing",
+    "multi-tenant workspace",
+    "shared inbox",
+  ],
+  authors: [{ name: "SupportHub team" }],
+  metadataBase: new URL("https://supporthub.bond"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "SupportHub | AI-Powered Customer Support Ticketing System",
+    description:
+      "Convert inbound support emails into structured tickets automatically, route them to the right agents, and resolve customer issues in real-time.",
+    url: "https://supporthub.bond",
+    siteName: "SupportHub",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SupportHub | AI-Powered Customer Support Ticketing System",
+    description:
+      "Convert inbound support emails into structured tickets automatically, route them to the right agents, and resolve customer issues in real-time.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

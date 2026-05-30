@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { motion } from "motion/react";
 import { Mail, Zap, Users } from "lucide-react";
 
@@ -143,6 +144,103 @@ export function HowItWorksSection() {
             ))}
           </div>
         </div>
+
+        {/* Google OAuth & Gmail Integration Notice */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-20 max-w-3xl mx-auto rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-xl p-8 shadow-2xl relative overflow-hidden"
+        >
+          {/* Subtle glow */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-[60px]" />
+
+          <div className="flex flex-col sm:flex-row items-start gap-6 relative z-10">
+            <div className="flex items-center justify-center p-3.5 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 shrink-0">
+              <svg
+                className="h-6 w-6 fill-current"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-6.887 4.114-4.694 0-8.503-3.809-8.503-8.503s3.809-8.503 8.503-8.503c2.25 0 4.18.847 5.632 2.206l3.125-3.125C18.618 1.155 15.68 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c6.887 0 12.24-5.361 12.24-12.24 0-.766-.085-1.503-.243-2.206l-12 1.051z" />
+              </svg>
+            </div>
+
+            <div className="space-y-4 text-left">
+              <h3 className="text-lg font-bold text-white tracking-tight">
+                Google Integration & OAuth Transparency Disclosure
+              </h3>
+              <p className="text-sm text-white/50 leading-relaxed">
+                SupportHub offers an optional integration with Google to
+                simplify customer communication. You can link your support Gmail
+                inbox to automate ticketing seamlessly:
+              </p>
+
+              <ul className="grid sm:grid-cols-2 gap-4 text-xs text-white/40">
+                <li className="flex items-start gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                  <span>
+                    <strong className="text-white">
+                      Read-Only Inbox Access:
+                    </strong>{" "}
+                    We request the <code>gmail.readonly</code> scope to sync and
+                    convert incoming customer support emails into tickets
+                    automatically.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-500 mt-1.5 shrink-0" />
+                  <span>
+                    <strong className="text-white">
+                      Strict Isolation & Security:
+                    </strong>{" "}
+                    OAuth credentials and support message payloads are
+                    completely isolated within your secure workspace tenant.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-500 mt-1.5 shrink-0" />
+                  <span>
+                    <strong className="text-white">Zero Marketing Use:</strong>{" "}
+                    We strictly do not use or transfer your email content for
+                    advertising, profiling, or sharing with external brokers.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                  <span>
+                    <strong className="text-white">Revoke Anytime:</strong> You
+                    retain full control. Disconnect your inbox or revoke
+                    authorization instantly from your dashboard or Google
+                    Account Settings.
+                  </span>
+                </li>
+              </ul>
+
+              <p className="text-xs text-white/30 pt-4 border-t border-white/[0.04] leading-relaxed">
+                Our practices strictly adhere to the{" "}
+                <a
+                  href="https://developers.google.com/terms/api-services-user-data-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:underline"
+                >
+                  Google API Services User Data Policy
+                </a>
+                , including the Limited Use requirements. For complete
+                information, see our{" "}
+                <Link
+                  href="/privacy"
+                  className="text-violet-400 hover:underline"
+                >
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

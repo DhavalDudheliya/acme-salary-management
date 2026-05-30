@@ -52,7 +52,7 @@ export function MarketingNavbar() {
           <Link href="/" className="flex items-center group">
             <img
               src="/logos/logo.png"
-              alt="SupportHub"
+              alt="SupportHub Logo"
               className="h-8 w-auto object-contain transition-opacity hover:opacity-90"
             />
           </Link>

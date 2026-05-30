@@ -100,7 +100,7 @@ export async function gmailCallback(
       select: { subdomain: true },
     });
 
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3001";
     let redirectUrl = `${frontendUrl}/settings/email?connected=gmail`;
 
     if (workspace && workspace.subdomain) {
@@ -120,7 +120,7 @@ export async function gmailCallback(
     // In error case, try to parse workspaceId from state safely
     const workspaceId =
       typeof req.query.state === "string" ? req.query.state : undefined;
-    let redirectUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/settings/email?error=gmail_connection_failed`;
+    let redirectUrl = `${process.env.FRONTEND_URL || "http://localhost:3001"}/settings/email?error=gmail_connection_failed`;
 
     if (workspaceId) {
       try {
@@ -130,7 +130,7 @@ export async function gmailCallback(
         });
         if (workspace?.subdomain) {
           const url = new URL(
-            process.env.FRONTEND_URL || "http://localhost:3000",
+            process.env.FRONTEND_URL || "http://localhost:3001",
           );
           url.hostname = `${workspace.subdomain}.${url.hostname}`;
           redirectUrl = `${url.origin}/settings/email?error=gmail_connection_failed`;
@@ -205,7 +205,7 @@ export async function outlookCallback(
       select: { subdomain: true },
     });
 
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3001";
     let redirectUrl = `${frontendUrl}/settings/email?connected=outlook`;
 
     if (workspace && workspace.subdomain) {
@@ -225,7 +225,7 @@ export async function outlookCallback(
     // In error case, try to parse workspaceId from state safely
     const workspaceId =
       typeof req.query.state === "string" ? req.query.state : undefined;
-    let redirectUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/settings/email?error=outlook_connection_failed`;
+    let redirectUrl = `${process.env.FRONTEND_URL || "http://localhost:3001"}/settings/email?error=outlook_connection_failed`;
 
     if (workspaceId) {
       try {
@@ -235,7 +235,7 @@ export async function outlookCallback(
         });
         if (workspace?.subdomain) {
           const url = new URL(
-            process.env.FRONTEND_URL || "http://localhost:3000",
+            process.env.FRONTEND_URL || "http://localhost:3001",
           );
           url.hostname = `${workspace.subdomain}.${url.hostname}`;
           redirectUrl = `${url.origin}/settings/email?error=outlook_connection_failed`;

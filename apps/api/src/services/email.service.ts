@@ -51,7 +51,7 @@ export async function sendVerificationEmail(
   const verifyLink = `${appUrl}/api/v1/auth/verify-email?token=${token}`;
 
   const mailOptions = {
-    from: process.env.SMTP_FROM || '"SupportHub" <noreply@supporthub.com>',
+    from: process.env.SMTP_FROM || '"SupportHub" <noreply@supporthub.bond>',
     to,
     subject: "Verify your SupportHub account",
     html: `
@@ -107,12 +107,12 @@ export async function sendPasswordResetEmail(
   token: string,
   subdomain: string,
 ): Promise<void> {
-  const frontendDomain = process.env.FRONTEND_DOMAIN || "localhost:3000";
+  const frontendDomain = process.env.FRONTEND_DOMAIN || "localhost:3001";
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   const resetLink = `${protocol}://${subdomain}.${frontendDomain}/reset-password?token=${token}`;
 
   const mailOptions = {
-    from: process.env.SMTP_FROM || '"SupportHub" <noreply@supporthub.com>',
+    from: process.env.SMTP_FROM || '"SupportHub" <noreply@supporthub.bond>',
     to,
     subject: "Reset your SupportHub password",
     html: `

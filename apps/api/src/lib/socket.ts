@@ -25,7 +25,7 @@ let io: Server;
 export function initSocketIO(httpServer: HttpServer): Server {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL || "http://localhost:3000",
+      origin: process.env.FRONTEND_URL || "http://localhost:3001",
       methods: ["GET", "POST"],
       credentials: true,
     },

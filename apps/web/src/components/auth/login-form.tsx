@@ -60,7 +60,7 @@ type LoginValues = {
 /**
  * LoginForm - Tenant-scoped login form.
  *
- * Displayed on tenant subdomains (e.g. acme.supporthub.com/login).
+ * Displayed on tenant subdomains (e.g. acme.supporthub.bond/login).
  * Derives the workspace name from the subdomain for display.
  * Shows a verification success banner when redirected from email verification.
  */
@@ -86,7 +86,7 @@ export default function LoginForm() {
       setWorkspaceName(formatted);
     } else if (typeof window !== "undefined") {
       // Fallback: extract subdomain from the current hostname
-      // e.g. "acme.localhost:3000" -> "Acme"
+      // e.g. "acme.localhost:3001" -> "Acme"
       const host = window.location.hostname;
       const parts = host.split(".");
       if (

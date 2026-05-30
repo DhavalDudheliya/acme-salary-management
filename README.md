@@ -92,7 +92,7 @@ MICROSOFT_TENANT_ID=common
 # App
 PORT=5000
 APP_URL=http://localhost:5000
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:3001
 
 # Redis
 REDIS_URL=redis://localhost:6379
@@ -135,7 +135,7 @@ This launches both apps simultaneously via Turborepo:
 
 | App     | URL                   |
 | ------- | --------------------- |
-| **Web** | http://localhost:3000 |
+| **Web** | http://localhost:3001 |
 | **API** | http://localhost:5000 |
 
 You can also start them individually:

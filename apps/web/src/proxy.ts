@@ -19,10 +19,10 @@ export function proxy(req: NextRequest) {
   const url = req.nextUrl;
   const { pathname } = url;
 
-  // Get hostname of request (e.g. acmecorp.supporthub.com, acmecorp.localhost:3000)
+  // Get hostname of request (e.g. acmecorp.supporthub.bond, acmecorp.localhost:3001)
   let hostname = req.headers
     .get("host")!
-    .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
+    .replace(".localhost:3001", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
 
   // Special case for Vercel preview deployments
   if (
@@ -39,12 +39,12 @@ export function proxy(req: NextRequest) {
     searchParams.length > 0 ? `?${searchParams}` : ""
   }`;
 
-  // ── Root domain (e.g., localhost:3000 or supporthub.com) ──
+  // ── Root domain (e.g., localhost:3001 or supporthub.bond) ──
   if (hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
     return NextResponse.next();
   }
 
-  // ── Subdomain routing (e.g., acmecorp.localhost:3000) ──
+  // ── Subdomain routing (e.g., acmecorp.localhost:3001) ──
   const currentHost =
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
       ? hostname.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")

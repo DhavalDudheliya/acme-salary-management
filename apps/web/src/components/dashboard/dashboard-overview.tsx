@@ -89,14 +89,12 @@ export function DashboardOverview() {
     ).length;
   }, [emailStatus]);
 
-  const firstName = user?.firstName ?? "there";
-  const company = user?.workspace.company ?? "your workspace";
+  const workspaceName = user?.workspace.company ?? "Workspace";
 
   return (
     <div className="flex-1 space-y-6 p-8">
       <DashboardHeader
-        firstName={firstName}
-        company={company}
+        workspaceName={workspaceName}
         loading={loading}
         onRefresh={handleRefresh}
       />

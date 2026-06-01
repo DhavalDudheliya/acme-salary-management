@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { type Ticket } from "@/lib/services/ticket.service";
+import { htmlToPlainText } from "@/lib/html-to-plain-text";
 import { Button } from "@supporthub/ui/components/button";
 import { Badge } from "@supporthub/ui/components/badge";
 import { Checkbox } from "@supporthub/ui/components/checkbox";
@@ -90,7 +91,7 @@ export const columns: ColumnDef<Ticket>[] = [
       <div className="max-w-[300px]">
         <p className="font-medium truncate">{row.getValue("subject")}</p>
         <p className="text-xs text-muted-foreground truncate">
-          {row.original.description}
+          {htmlToPlainText(row.original.description)}
         </p>
       </div>
     ),

@@ -17,6 +17,7 @@ import workspaceRoutes from "./modules/workspace/workspace.routes.js";
 import rulesRoutes from "./modules/rules/rules.routes.js";
 import aiLogsRoutes from "./modules/rules/ai-logs.routes.js";
 import reportsRoutes from "./modules/reports/reports.routes.js";
+import searchRoutes from "./modules/search/search.routes.js";
 
 const router: IRouter = Router();
 
@@ -31,5 +32,6 @@ router.use("/v1/workspace", workspaceRoutes);
 router.use("/v1/rules", rulesRoutes);
 router.use("/v1/ai-logs", aiLogsRoutes);
 router.use("/v1/reports", reportsRoutes);
+router.use("/v1/search", searchRoutes);
 
 export default router;

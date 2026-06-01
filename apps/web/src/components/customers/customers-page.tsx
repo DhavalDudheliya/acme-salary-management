@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { useCustomers } from "@/hooks/use-customers";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
 import { CustomersHeader } from "@/components/customers/customers-header";
@@ -14,6 +15,7 @@ const FETCH_LIMIT = 100;
 
 export function CustomersPage() {
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query);
   const queryClient = useQueryClient();
   const { data, isLoading: loading } = useCustomers();
   const customers = data?.customers || [];
@@ -24,7 +26,7 @@ export function CustomersPage() {
   }, [queryClient]);
 
   const filteredCustomers = useMemo(() => {
-    const search = query.trim().toLowerCase();
+    const search = debouncedQuery.trim().toLowerCase();
 
     if (!search) {
       return customers;
@@ -35,7 +37,7 @@ export function CustomersPage() {
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(search)),
     );
-  }, [customers, query]);
+  }, [customers, debouncedQuery]);
 
   const customersWithPhone = useMemo(
     () => customers.filter((customer) => customer.phone).length,

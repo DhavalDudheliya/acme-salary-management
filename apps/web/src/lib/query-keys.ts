@@ -40,6 +40,12 @@ export const queryKeys = {
     team: () => [...queryKeys.invitations.all, "team"] as const,
   },
 
+  // ── Search ──
+  search: {
+    all: ["search"] as const,
+    tickets: (q: string) => [...queryKeys.search.all, "tickets", q] as const,
+  },
+
   // ── Reports ──
   reports: {
     all: ["reports"] as const,

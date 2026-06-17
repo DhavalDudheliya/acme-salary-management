@@ -108,7 +108,7 @@ SPA, React Router. Server data through TanStack Query; directory state lives in 
 
 Runnable and demoable as early as possible, then deepened; tests land with the code they cover.
 
-1. **Scaffold** — pnpm workspace, `docker-compose` (Postgres), Express skeleton (health, logging, error middleware), Vite + Tailwind + shadcn client shell, TanStack Query + Router wiring.
+1. **Scaffold** — separate `server/` and `client/` apps with their own `package.json` files, `docker-compose` (Postgres), Express skeleton (health, logging, error middleware), Vite React TypeScript client shell created with `npm create vite@latest client -- --template react-ts`, Tailwind + shadcn client shell, TanStack Query + Router wiring.
 2. **Data layer** — Prisma schema + migration, then the 10k seed script.
 3. **Backend API** — directory → detail → CRUD → salary-change → FX → dashboard → CSV, each with its tests.
 4. **Frontend** — directory → detail → create/edit + salary-change forms → dashboard → FX editor / export, then frontend interaction tests.

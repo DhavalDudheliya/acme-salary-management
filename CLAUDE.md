@@ -11,6 +11,7 @@ A web app for ACME's **HR Manager** to manage salary data for ~10,000 employees 
 
 ## Stack (do not substitute without updating the docs)
 
+- Use the latest stable version of every package when scaffolding or installing dependencies, unless this file or another project doc pins a specific version.
 - **Frontend:** React + Vite · TypeScript · **shadcn/ui on Base UI** (`@base-ui-components/react`) + Tailwind · TanStack Query · TanStack Table · Recharts · React Router · React Hook Form + Zod · Axios
 - **Backend:** Express + TypeScript · Prisma · Zod · Pino · fast-csv · helmet/cors/compression
 - **DB:** PostgreSQL (Docker Compose locally, hosted in deploy; selected by `DATABASE_URL`)
@@ -19,12 +20,14 @@ A web app for ACME's **HR Manager** to manage salary data for ~10,000 employees 
 ## Repo layout
 
 ```
-server/   Express API   (src/{routes,controllers,services,lib}, prisma/{schema.prisma,seed.ts})
-client/   React SPA      (src/{pages,components,api,hooks})
+server/   Express API   (src/{modules,routes,controllers,services,lib}, src/routes/index.ts root route file, prisma/{schema.prisma,seed.ts})
+client/   React SPA      (src/{modules,pages,components,routes,controllers,api,hooks})
 docker-compose.yml        PostgreSQL for local dev
 ```
 
 ## Backend conventions
+
+- **MVP-style backend organization:** keep separate folders for modules, routes, controllers, services, and shared library code. Each feature module owns its domain files; the root route file composes all module routes in one place.
 
 - **Layering:** `route → controller → service → Prisma`. Business logic lives in **services** (pure, HTTP-agnostic, unit-testable). Controllers only translate HTTP ↔ service calls. Never put Prisma queries in controllers or business logic in routes.
 - **Validation:** every request body/query is validated with **Zod at the boundary** (controller). Services assume already-valid input. Share Zod schemas with the client where practical.
@@ -35,6 +38,11 @@ docker-compose.yml        PostgreSQL for local dev
 - **No secrets in code.** Config via env vars (`DATABASE_URL`, etc.).
 
 ## Frontend conventions
+
+- **MVP-style module-wise client structure:** create feature folders under `src/modules` and keep module-specific views, presenter/controller logic, hooks, schemas, and helpers inside the owning module.
+- **Components folder:** organize `src/components` by module/domain, with `components/ui` reserved for shared shadcn primitives. Shared app-level components may live in `components/common`.
+- **Pages, routes, and controllers:** keep route-level screens in `src/pages`, route definitions in `src/routes`, shared client controllers in `src/controllers`, and compose the app routing from a single root route file.
+- Keep client code readable, modularized, and split by responsibility. Avoid large mixed-purpose files.
 
 - **Server state via TanStack Query** only — no manual fetch-into-useState for server data. Query keys encode page/filter/search.
 - **Directory state lives in the URL** (page, filters, search) so views are shareable and back/forward works. Never load all 10k rows client-side.
@@ -70,7 +78,10 @@ docker-compose.yml        PostgreSQL for local dev
 
 ## Commands (filled in as scaffolding lands)
 
+- Client scaffold: `npm create vite@latest client -- --template react-ts`
 - DB up: `docker-compose up -d`
-- Migrate + seed: `pnpm --filter server prisma migrate dev && pnpm --filter server seed`
-- Dev: `pnpm dev` (client + server)
-- Test: `pnpm test`
+- Server dev: `cd server && npm run dev`
+- Client dev: `cd client && npm run dev`
+- Migrate + seed: `cd server && npm run db:migrate && npm run seed`
+- Server test: `cd server && npm test`
+- Client test: `cd client && npm test`

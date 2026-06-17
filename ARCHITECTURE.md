@@ -120,10 +120,11 @@ salary-management/
 ├── server/                   # Express + TypeScript API
 │   ├── prisma/               # schema.prisma, migrations, seed.ts
 │   └── src/
-│       ├── routes/  controllers/  services/  lib/
+│       ├── modules/  routes/  controllers/  services/  lib/
+│       ├── routes/index.ts
 │       └── index.ts
 ├── client/                   # React + Vite SPA
-│   └── src/  (pages/ components/ api/ hooks/)
+│   └── src/  (modules/ pages/ components/ routes/ controllers/ api/ hooks/)
 ├── REQUIREMENTS.md
 └── ARCHITECTURE.md
 ```

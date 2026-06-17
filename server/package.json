@@ -1,0 +1,40 @@
+{
+  "name": "salary-management-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "db:migrate": "prisma migrate dev",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.8.0",
+    "compression": "latest",
+    "cors": "latest",
+    "express": "latest",
+    "fast-csv": "^5.0.7",
+    "helmet": "latest",
+    "pino": "latest",
+    "pino-http": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/compression": "latest",
+    "@types/cors": "latest",
+    "@types/express": "latest",
+    "@types/node": "latest",
+    "@types/supertest": "^7.2.0",
+    "eslint": "latest",
+    "prettier": "^3.8.4",
+    "prisma": "^7.8.0",
+    "supertest": "^7.2.2",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}

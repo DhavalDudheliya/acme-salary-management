@@ -1,0 +1,63 @@
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  importFileExtension    = "js"
+  generatedFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EmployeeStatus {
+  active
+  inactive
+}
+
+model Employee {
+  id              String          @id @default(uuid()) @db.Uuid
+  firstName       String          @map("first_name")
+  lastName        String          @map("last_name")
+  email           String          @unique
+  country         String
+  department      String
+  jobTitle        String          @map("job_title")
+  currency        String          @db.Char(3)
+  status          EmployeeStatus  @default(active)
+  hireDate        DateTime        @map("hire_date") @db.Date
+  currentSalaryId String?         @unique @map("current_salary_id") @db.Uuid
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  currentSalary   SalaryRecord?   @relation("current_salary", fields: [currentSalaryId], references: [id], onDelete: Restrict)
+  salaryRecords   SalaryRecord[]  @relation("employee_salary_records")
+
+  @@index([status, country])
+  @@index([status, department])
+  @@index([lastName, firstName])
+  @@index([email])
+  @@map("employees")
+}
+
+model SalaryRecord {
+  id              String     @id @default(uuid()) @db.Uuid
+  employeeId      String     @map("employee_id") @db.Uuid
+  amount          Decimal    @db.Decimal(14, 2)
+  currency        String     @db.Char(3)
+  effectiveDate   DateTime   @map("effective_date") @db.Date
+  reason          String
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  employee        Employee   @relation("employee_salary_records", fields: [employeeId], references: [id], onDelete: Restrict)
+  currentEmployee Employee?  @relation("current_salary")
+
+  @@index([employeeId, effectiveDate])
+  @@index([createdAt])
+  @@map("salary_records")
+}
+
+model FxRate {
+  currency   String   @id @db.Char(3)
+  rateToBase Decimal  @map("rate_to_base") @db.Decimal(18, 8)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("fx_rates")
+}

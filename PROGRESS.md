@@ -1,0 +1,183 @@
+# Progress Checklist
+
+## 0. Planning And Documentation
+
+- [x] Capture original assessment brief.
+- [x] Write requirements document with scope and deliberate exclusions.
+- [x] Write architecture document with system design and trade-offs.
+- [x] Write development plan with build order.
+- [x] Add engineering instructions in `CLAUDE.md`.
+- [x] Align docs with separate `client/` and `server/` apps.
+- [x] Document latest-package requirement.
+- [x] Document module-wise client structure.
+- [x] Document backend modules, routes, controllers, services, and root route file.
+- [x] Commit documentation alignment.
+
+## 1. Project Scaffold
+
+- [x] Create Vite React TypeScript client with latest Vite command.
+- [x] Create separate Express TypeScript server app.
+- [x] Add root `.gitignore`.
+- [x] Add `docker-compose.yml` for local PostgreSQL.
+- [x] Add server `GET /api/health`.
+- [x] Add server root route file.
+- [x] Add server error middleware.
+- [x] Add server env parsing.
+- [x] Add README quickstart commands.
+- [x] Verify client production build.
+- [x] Verify server TypeScript build.
+- [x] Commit scaffold.
+
+## 2. Client Foundation
+
+- [x] Install Tailwind CSS for Vite.
+- [x] Configure `@/*` import alias.
+- [x] Initialize shadcn/ui with Base UI.
+- [x] Add shadcn `button`.
+- [x] Add shadcn `badge`.
+- [x] Add shadcn `card`.
+- [x] Add shadcn `dialog`.
+- [x] Add shadcn `dropdown-menu`.
+- [x] Add shadcn `input`.
+- [x] Add shadcn `label`.
+- [x] Add shadcn `select`.
+- [x] Add shadcn `separator`.
+- [x] Add shadcn `table`.
+- [x] Add shadcn `textarea`.
+- [x] Install client app dependencies: TanStack Query, TanStack Table, React Router, Recharts, React Hook Form, Zod, Axios.
+- [x] Install client test dependencies.
+- [x] Create module-wise client folders.
+- [x] Create initial app shell.
+- [x] Create initial employee directory preview.
+- [ ] Wire React Router.
+- [ ] Wire TanStack Query provider.
+- [ ] Replace preview directory with API-backed table.
+- [ ] Add reusable form field wrappers if needed.
+
+## 3. Server Foundation
+
+- [x] Install Express middleware dependencies.
+- [x] Install Prisma client and CLI.
+- [x] Install server test dependencies.
+- [x] Install CSV export dependency.
+- [x] Create module-wise server folders.
+- [x] Create health module.
+- [x] Add Prisma schema.
+- [x] Add first migration.
+- [x] Add Prisma client helper.
+- [ ] Add typed application errors.
+- [ ] Add request validation helpers.
+- [ ] Add service unit test setup.
+- [ ] Add API integration test setup.
+
+## 4. Data Layer
+
+- [x] Model `employees`.
+- [x] Model `salary_records`.
+- [x] Model `fx_rates`.
+- [x] Add employee status enum.
+- [x] Add directory filter indexes.
+- [x] Add salary history indexes.
+- [x] Add current salary relationship.
+- [x] Add migration.
+- [ ] Add deterministic seeded random helper.
+- [ ] Add 10,000 employee seed script.
+- [ ] Seed realistic countries, departments, currencies, and salaries.
+- [ ] Seed 1-4 salary records per employee.
+- [ ] Seed FX rates.
+- [x] Verify migration flow.
+- [ ] Verify seed flow.
+
+## 5. Backend API
+
+- [ ] Implement `GET /api/employees`.
+- [ ] Implement directory pagination.
+- [ ] Implement directory search.
+- [ ] Implement country, department, and status filters.
+- [ ] Implement directory sorting.
+- [ ] Implement `GET /api/employees/:id`.
+- [ ] Implement `POST /api/employees`.
+- [ ] Implement `PATCH /api/employees/:id`.
+- [ ] Implement `DELETE /api/employees/:id` as soft delete.
+- [ ] Implement `POST /api/employees/:id/salary`.
+- [ ] Ensure salary changes are transactional.
+- [ ] Ensure salary records are append-only.
+- [ ] Implement `GET /api/fx-rates`.
+- [ ] Implement `PUT /api/fx-rates`.
+- [ ] Implement `GET /api/dashboard`.
+- [ ] Implement median salary query.
+- [ ] Implement salary distribution buckets.
+- [ ] Implement country and department breakdowns.
+- [ ] Implement recent salary changes.
+- [ ] Implement `GET /api/employees/export`.
+- [ ] Stream CSV export.
+
+## 6. Backend Tests
+
+- [ ] Test salary-change atomicity.
+- [ ] Test salary-history immutability.
+- [ ] Test FX normalization math.
+- [ ] Test pagination edges.
+- [ ] Test filter and sort query building.
+- [ ] Test dashboard median and buckets on known fixtures.
+- [ ] Test employee API validation failures.
+- [ ] Test employee API success response shapes.
+- [ ] Test CSV export filters.
+
+## 7. Frontend Features
+
+- [ ] Build employee directory page.
+- [ ] Add URL-backed directory state.
+- [ ] Add debounced search.
+- [ ] Add country filter.
+- [ ] Add department filter.
+- [ ] Add status filter.
+- [ ] Add server pagination controls.
+- [ ] Add CSV export action.
+- [ ] Build employee detail page.
+- [ ] Build salary history timeline.
+- [ ] Build create employee flow.
+- [ ] Build edit employee flow.
+- [ ] Build salary change flow.
+- [ ] Build dashboard page.
+- [ ] Add dashboard KPI cards.
+- [ ] Add salary distribution chart.
+- [ ] Add country breakdown chart.
+- [ ] Add department breakdown chart.
+- [ ] Add recent salary changes panel.
+- [ ] Build FX rates settings page.
+
+## 8. Frontend Tests
+
+- [ ] Test directory filtering interaction.
+- [ ] Test directory pagination interaction.
+- [ ] Test salary change form.
+- [ ] Test create employee validation.
+- [ ] Test FX rate editing.
+
+## 9. Performance And Polish
+
+- [ ] Verify directory response under 150 ms on 10,000 rows.
+- [ ] Verify dashboard response under 300 ms on 10,000 rows.
+- [ ] Run `EXPLAIN` on key queries.
+- [ ] Tune indexes if needed.
+- [ ] Review UI for HR manager usability.
+- [ ] Verify responsive layouts.
+- [ ] Verify empty states.
+- [ ] Verify loading states.
+- [ ] Verify error states.
+- [ ] Finalize README quickstart.
+- [ ] Add AI usage notes.
+- [ ] Prepare demo script.
+- [ ] Record demo video.
+- [ ] Deploy app.
+
+## 10. Final Verification
+
+- [ ] Run server tests.
+- [ ] Run client tests.
+- [ ] Run server build.
+- [ ] Run client build.
+- [ ] Run lint.
+- [ ] Fresh clone setup check.
+- [ ] Confirm git history is incremental and readable.

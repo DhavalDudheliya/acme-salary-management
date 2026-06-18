@@ -21,6 +21,8 @@ Run the API:
 ```sh
 cd server
 npm install
+copy .env.example .env
+npm run db:migrate
 npm run dev
 ```
 

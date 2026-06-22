@@ -14,7 +14,8 @@ export function createApp() {
   app.use(cors())
   app.use(compression())
   app.use(express.json())
-  app.use(pinoHttp())
+  // Silence request logging under test to keep test output readable.
+  app.use(pinoHttp({ enabled: process.env.NODE_ENV !== 'test' }))
 
   app.use('/api', routes)
   app.use(errorHandler)

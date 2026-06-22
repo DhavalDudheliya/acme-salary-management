@@ -149,8 +149,8 @@
 
 ## 8. Frontend Tests
 
-- [ ] Test directory filtering interaction.
-- [ ] Test directory pagination interaction.
+- [x] Test directory filtering interaction.
+- [x] Test directory pagination interaction.
 - [ ] Test salary change form.
 - [ ] Test create employee validation.
 - [ ] Test FX rate editing.

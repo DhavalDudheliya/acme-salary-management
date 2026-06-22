@@ -34,4 +34,4 @@ npm install
 npm run dev
 ```
 
-The API health check is available at `http://localhost:4000/api/health`.
+The API health check is available at `http://localhost:5000/api/health`.

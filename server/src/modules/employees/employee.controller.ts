@@ -1,7 +1,12 @@
 import type { Request, Response } from 'express'
 
-import { employeeListQuerySchema } from './employee.schemas.js'
-import { listEmployees, type EmployeeListResult } from './employee.service.js'
+import { employeeIdParamSchema, employeeListQuerySchema } from './employee.schemas.js'
+import {
+  getEmployeeById,
+  listEmployees,
+  type EmployeeDetail,
+  type EmployeeListResult,
+} from './employee.service.js'
 
 /** Format a DATE-column value as `YYYY-MM-DD` (no spurious time/zone). */
 function toDateString(date: Date): string {
@@ -33,4 +38,30 @@ export async function getEmployees(request: Request, response: Response) {
     page: result.page,
     pageSize: result.pageSize,
   })
+}
+
+/** Shape the detail view: profile + newest-first salary history. */
+function serializeDetail(employee: EmployeeDetail) {
+  const { salaryRecords, ...profile } = employee
+  return {
+    ...profile,
+    hireDate: toDateString(profile.hireDate),
+    createdAt: profile.createdAt.toISOString(),
+    updatedAt: profile.updatedAt.toISOString(),
+    salaryHistory: salaryRecords.map((record) => ({
+      id: record.id,
+      amount: record.amount.toString(),
+      currency: record.currency,
+      effectiveDate: toDateString(record.effectiveDate),
+      reason: record.reason,
+      createdAt: record.createdAt.toISOString(),
+    })),
+  }
+}
+
+export async function getEmployee(request: Request, response: Response) {
+  const { id } = employeeIdParamSchema.parse(request.params)
+  const employee = await getEmployeeById(id)
+
+  response.json(serializeDetail(employee))
 }

@@ -78,3 +78,45 @@ describe('GET /api/employees', () => {
     expect(res.status).toBe(400)
   })
 })
+
+describe('GET /api/employees/:id', () => {
+  /** Pick a real id from the directory so the detail test needs no fixtures. */
+  async function anyEmployeeId(): Promise<string> {
+    const res = await request(app).get('/api/employees?pageSize=1')
+    return res.body.rows[0].id
+  }
+
+  it('returns the full profile and newest-first salary history', async () => {
+    const id = await anyEmployeeId()
+    const res = await request(app).get(`/api/employees/${id}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({ id, email: expect.any(String), country: expect.any(String) })
+    expect(Array.isArray(res.body.salaryHistory)).toBe(true)
+    expect(res.body.salaryHistory.length).toBeGreaterThanOrEqual(1)
+
+    const dates: string[] = res.body.salaryHistory.map((r: { effectiveDate: string }) => r.effectiveDate)
+    for (let i = 1; i < dates.length; i += 1) {
+      expect(dates[i] <= dates[i - 1]).toBe(true)
+    }
+  })
+
+  it('points current_salary_id at the latest history record', async () => {
+    const id = await anyEmployeeId()
+    const res = await request(app).get(`/api/employees/${id}`)
+
+    expect(res.body.currentSalaryId).toBe(res.body.salaryHistory[0].id)
+  })
+
+  it('returns 404 with a not_found code for a valid but absent id', async () => {
+    const res = await request(app).get('/api/employees/00000000-0000-4000-8000-000000000000')
+
+    expect(res.status).toBe(404)
+    expect(res.body.error.code).toBe('not_found')
+  })
+
+  it('rejects a malformed id with 400', async () => {
+    const res = await request(app).get('/api/employees/not-a-uuid')
+    expect(res.status).toBe(400)
+  })
+})

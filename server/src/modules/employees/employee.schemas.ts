@@ -24,6 +24,11 @@ const sortToken = z
     { message: `sort must be one of: ${SORT_FIELDS.join(', ')} (optionally '-' prefixed)` },
   )
 
+/** Path param for any single-employee route. */
+export const employeeIdParamSchema = z.object({
+  id: z.uuid(),
+})
+
 export const employeeListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(25),

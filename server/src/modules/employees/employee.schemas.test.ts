@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
-import { employeeListQuerySchema } from './employee.schemas.js'
+import { employeeIdParamSchema, employeeListQuerySchema } from './employee.schemas.js'
+
+describe('employeeIdParamSchema', () => {
+  it('accepts a valid uuid', () => {
+    const id = '04b57c99-2638-4cb4-b309-f35d3abd79e4'
+    expect(employeeIdParamSchema.parse({ id }).id).toBe(id)
+  })
+
+  it('rejects a non-uuid id', () => {
+    expect(employeeIdParamSchema.safeParse({ id: 'not-a-uuid' }).success).toBe(false)
+  })
+})
 
 describe('employeeListQuerySchema', () => {
   it('applies pagination defaults when omitted', () => {

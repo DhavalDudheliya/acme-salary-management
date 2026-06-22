@@ -95,7 +95,7 @@
 - [x] Implement directory search.
 - [x] Implement country, department, and status filters.
 - [x] Implement directory sorting.
-- [ ] Implement `GET /api/employees/:id`.
+- [x] Implement `GET /api/employees/:id`.
 - [ ] Implement `POST /api/employees`.
 - [ ] Implement `PATCH /api/employees/:id`.
 - [ ] Implement `DELETE /api/employees/:id` as soft delete.

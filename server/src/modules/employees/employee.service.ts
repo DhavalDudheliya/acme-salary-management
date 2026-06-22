@@ -1,4 +1,5 @@
 import { Prisma } from '../../generated/prisma/client.js'
+import { NotFoundError } from '../../lib/errors.js'
 import { prisma } from '../../lib/prisma.js'
 import type { EmployeeListQuery } from './employee.schemas.js'
 
@@ -87,6 +88,47 @@ export interface EmployeeListResult {
   total: number
   page: number
   pageSize: number
+}
+
+/** Full profile plus the complete, newest-first salary history for the detail view. */
+const detailSelect = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  country: true,
+  department: true,
+  jobTitle: true,
+  currency: true,
+  status: true,
+  hireDate: true,
+  currentSalaryId: true,
+  createdAt: true,
+  updatedAt: true,
+  salaryRecords: {
+    select: {
+      id: true,
+      amount: true,
+      currency: true,
+      effectiveDate: true,
+      reason: true,
+      createdAt: true,
+    },
+    orderBy: [{ effectiveDate: 'desc' }, { createdAt: 'desc' }],
+  },
+} satisfies Prisma.EmployeeSelect
+
+export type EmployeeDetail = Prisma.EmployeeGetPayload<{ select: typeof detailSelect }>
+
+/** Fetch one employee with their append-only salary history. Throws if absent. */
+export async function getEmployeeById(id: string): Promise<EmployeeDetail> {
+  const employee = await prisma.employee.findUnique({ where: { id }, select: detailSelect })
+
+  if (!employee) {
+    throw new NotFoundError(`Employee ${id} not found`)
+  }
+
+  return employee
 }
 
 export async function listEmployees(query: EmployeeListQuery): Promise<EmployeeListResult> {

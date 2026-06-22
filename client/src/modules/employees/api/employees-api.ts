@@ -1,6 +1,6 @@
 import { apiClient, API_BASE_URL } from '@/api/client'
 
-import type { DirectoryParams, EmployeeListResponse } from './types'
+import type { DirectoryParams, EmployeeDetail, EmployeeListResponse } from './types'
 
 /** Drop empty/default values so the request (and URL) stays clean. */
 function toQuery(params: Partial<DirectoryParams>): Record<string, string> {
@@ -17,6 +17,11 @@ export async function fetchEmployees(params: DirectoryParams): Promise<EmployeeL
   const { data } = await apiClient.get<EmployeeListResponse>('/employees', {
     params: toQuery(params),
   })
+  return data
+}
+
+export async function fetchEmployee(id: string): Promise<EmployeeDetail> {
+  const { data } = await apiClient.get<EmployeeDetail>(`/employees/${id}`)
   return data
 }
 

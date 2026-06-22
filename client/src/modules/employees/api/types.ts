@@ -27,6 +27,32 @@ export interface EmployeeListResponse {
   pageSize: number
 }
 
+export interface SalaryHistoryItem {
+  id: string
+  amount: string
+  currency: string
+  effectiveDate: string
+  reason: string
+  createdAt: string
+}
+
+export interface EmployeeDetail {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  country: string
+  department: string
+  jobTitle: string
+  currency: string
+  status: EmployeeStatus
+  hireDate: string
+  currentSalaryId: string | null
+  createdAt: string
+  updatedAt: string
+  salaryHistory: SalaryHistoryItem[]
+}
+
 /** Directory query state, mirrored in the URL. */
 export interface DirectoryParams {
   page: number

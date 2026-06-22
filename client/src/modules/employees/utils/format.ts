@@ -1,19 +1,24 @@
 import type { CurrentSalary } from '../api/types'
 
-/** Format a salary string in its own currency, e.g. "€64,500". */
-export function formatSalary(salary: CurrentSalary | null): string {
-  if (!salary) return '—'
-  const amount = Number(salary.amount)
+/** Format an amount string in the given currency, e.g. "€64,500". */
+export function formatMoney(amount: string, currency: string): string {
+  const value = Number(amount)
   try {
     return new Intl.NumberFormat(undefined, {
       style: 'currency',
-      currency: salary.currency,
+      currency,
       maximumFractionDigits: 0,
-    }).format(amount)
+    }).format(value)
   } catch {
     // Unknown currency code — fall back to a plain number with the code.
-    return `${salary.currency} ${amount.toLocaleString()}`
+    return `${currency} ${value.toLocaleString()}`
   }
+}
+
+/** Format a current-salary object, or an em dash when absent. */
+export function formatSalary(salary: CurrentSalary | null): string {
+  if (!salary) return '—'
+  return formatMoney(salary.amount, salary.currency)
 }
 
 export function formatDate(iso: string): string {

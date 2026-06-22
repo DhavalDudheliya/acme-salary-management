@@ -134,8 +134,8 @@
 - [x] Add status filter.
 - [x] Add server pagination controls.
 - [x] Add CSV export action.
-- [ ] Build employee detail page.
-- [ ] Build salary history timeline.
+- [x] Build employee detail page.
+- [x] Build salary history timeline.
 - [ ] Build create employee flow.
 - [ ] Build edit employee flow.
 - [ ] Build salary change flow.

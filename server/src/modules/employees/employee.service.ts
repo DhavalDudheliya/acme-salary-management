@@ -213,6 +213,26 @@ export async function updateEmployee(
   }
 }
 
+/**
+ * Soft-delete: deactivate by setting status to inactive. Never hard-deletes, so
+ * salary history and payroll totals stay intact. Idempotent — deactivating an
+ * already-inactive employee is a no-op that still returns the record. 404 if absent.
+ */
+export async function deactivateEmployee(id: string): Promise<EmployeeDetail> {
+  try {
+    return await prisma.employee.update({
+      where: { id },
+      data: { status: 'inactive' },
+      select: detailSelect,
+    })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      throw new NotFoundError(`Employee ${id} not found`)
+    }
+    throw error
+  }
+}
+
 /** Fetch one employee with their append-only salary history. Throws if absent. */
 export async function getEmployeeById(id: string): Promise<EmployeeDetail> {
   const employee = await prisma.employee.findUnique({ where: { id }, select: detailSelect })

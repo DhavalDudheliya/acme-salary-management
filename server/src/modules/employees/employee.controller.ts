@@ -8,6 +8,7 @@ import {
 } from './employee.schemas.js'
 import {
   createEmployee,
+  deactivateEmployee,
   getEmployeeById,
   listEmployees,
   updateEmployee,
@@ -84,6 +85,13 @@ export async function patchEmployee(request: Request, response: Response) {
   const { id } = employeeIdParamSchema.parse(request.params)
   const input = updateEmployeeSchema.parse(request.body)
   const employee = await updateEmployee(id, input)
+
+  response.json(serializeDetail(employee))
+}
+
+export async function deleteEmployee(request: Request, response: Response) {
+  const { id } = employeeIdParamSchema.parse(request.params)
+  const employee = await deactivateEmployee(id)
 
   response.json(serializeDetail(employee))
 }

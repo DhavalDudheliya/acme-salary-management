@@ -98,7 +98,7 @@
 - [x] Implement `GET /api/employees/:id`.
 - [x] Implement `POST /api/employees`.
 - [x] Implement `PATCH /api/employees/:id`.
-- [ ] Implement `DELETE /api/employees/:id` as soft delete.
+- [x] Implement `DELETE /api/employees/:id` as soft delete.
 - [ ] Implement `POST /api/employees/:id/salary`.
 - [ ] Ensure salary changes are transactional.
 - [ ] Ensure salary records are append-only.

@@ -259,3 +259,60 @@ describe('PATCH /api/employees/:id', () => {
     expect(res.status).toBe(400)
   })
 })
+
+describe('DELETE /api/employees/:id', () => {
+  const TEST_EMAIL = 'integration.delete@acme.example'
+
+  const fixture = {
+    firstName: 'Integration',
+    lastName: 'Delete',
+    email: TEST_EMAIL,
+    country: 'Spain',
+    department: 'Engineering',
+    jobTitle: 'Engineer',
+    currency: 'eur',
+    hireDate: '2024-02-15',
+    salary: { amount: 60000 },
+  }
+
+  let id: string
+
+  beforeEach(async () => {
+    await deleteEmployeeByEmail(TEST_EMAIL)
+    const created = await request(app).post('/api/employees').send(fixture)
+    id = created.body.id
+  })
+  afterEach(() => deleteEmployeeByEmail(TEST_EMAIL))
+
+  it('soft-deletes by setting status to inactive and keeps the record', async () => {
+    const res = await request(app).delete(`/api/employees/${id}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body.status).toBe('inactive')
+    expect(res.body.salaryHistory).toHaveLength(1)
+
+    // Still retrievable — not hard-deleted.
+    const fetched = await request(app).get(`/api/employees/${id}`)
+    expect(fetched.status).toBe(200)
+    expect(fetched.body.status).toBe('inactive')
+  })
+
+  it('is idempotent for an already-inactive employee', async () => {
+    await request(app).delete(`/api/employees/${id}`)
+    const again = await request(app).delete(`/api/employees/${id}`)
+
+    expect(again.status).toBe(200)
+    expect(again.body.status).toBe('inactive')
+  })
+
+  it('returns 404 for a valid but absent id', async () => {
+    const res = await request(app).delete('/api/employees/00000000-0000-4000-8000-000000000000')
+    expect(res.status).toBe(404)
+    expect(res.body.error.code).toBe('not_found')
+  })
+
+  it('rejects a malformed id with 400', async () => {
+    const res = await request(app).delete('/api/employees/not-a-uuid')
+    expect(res.status).toBe(400)
+  })
+})

@@ -1,12 +1,9 @@
-import type { ReactNode } from 'react'
+import { NavLink, Outlet } from 'react-router-dom'
 
+import { cn } from '@/lib/utils'
 import { primaryRoutes } from '@/controllers/navigation-controller'
 
-type AppShellProps = {
-  children: ReactNode
-}
-
-export function AppShell({ children }: AppShellProps) {
+export function AppShell() {
   return (
     <div className="grid min-h-svh bg-muted/30 lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="border-border bg-background border-b p-5 lg:border-r lg:border-b-0" aria-label="Primary navigation">
@@ -22,19 +19,27 @@ export function AppShell({ children }: AppShellProps) {
 
         <nav className="grid gap-1">
           {primaryRoutes.map((route) => (
-            <a
+            <NavLink
               key={route.path}
-              className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-md px-3 py-2 text-sm font-medium transition-colors aria-[current=page]:bg-muted aria-[current=page]:text-foreground"
-              href={route.path}
-              aria-current={route.path === '/employees' ? 'page' : undefined}
+              to={route.path}
+              className={({ isActive }) =>
+                cn(
+                  'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                )
+              }
             >
               {route.label}
-            </a>
+            </NavLink>
           ))}
         </nav>
       </aside>
 
-      <main className="min-w-0 p-5 lg:p-8">{children}</main>
+      <main className="min-w-0 p-5 lg:p-8">
+        <Outlet />
+      </main>
     </div>
   )
 }

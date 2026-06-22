@@ -49,9 +49,9 @@
 - [x] Create module-wise client folders.
 - [x] Create initial app shell.
 - [x] Create initial employee directory preview.
-- [ ] Wire React Router.
-- [ ] Wire TanStack Query provider.
-- [ ] Replace preview directory with API-backed table.
+- [x] Wire React Router.
+- [x] Wire TanStack Query provider.
+- [x] Replace preview directory with API-backed table.
 - [ ] Add reusable form field wrappers if needed.
 
 ## 3. Server Foundation
@@ -126,14 +126,14 @@
 
 ## 7. Frontend Features
 
-- [ ] Build employee directory page.
-- [ ] Add URL-backed directory state.
-- [ ] Add debounced search.
-- [ ] Add country filter.
-- [ ] Add department filter.
-- [ ] Add status filter.
-- [ ] Add server pagination controls.
-- [ ] Add CSV export action.
+- [x] Build employee directory page.
+- [x] Add URL-backed directory state.
+- [x] Add debounced search.
+- [x] Add country filter.
+- [x] Add department filter.
+- [x] Add status filter.
+- [x] Add server pagination controls.
+- [x] Add CSV export action.
 - [ ] Build employee detail page.
 - [ ] Build salary history timeline.
 - [ ] Build create employee flow.

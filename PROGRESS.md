@@ -104,11 +104,11 @@
 - [x] Ensure salary records are append-only.
 - [x] Implement `GET /api/fx-rates`.
 - [x] Implement `PUT /api/fx-rates`.
-- [ ] Implement `GET /api/dashboard`.
-- [ ] Implement median salary query.
-- [ ] Implement salary distribution buckets.
-- [ ] Implement country and department breakdowns.
-- [ ] Implement recent salary changes.
+- [x] Implement `GET /api/dashboard`.
+- [x] Implement median salary query.
+- [x] Implement salary distribution buckets.
+- [x] Implement country and department breakdowns.
+- [x] Implement recent salary changes.
 - [ ] Implement `GET /api/employees/export`.
 - [ ] Stream CSV export.
 
@@ -116,10 +116,10 @@
 
 - [ ] Test salary-change atomicity.
 - [x] Test salary-history immutability.
-- [ ] Test FX normalization math.
+- [x] Test FX normalization math.
 - [x] Test pagination edges.
 - [x] Test filter and sort query building.
-- [ ] Test dashboard median and buckets on known fixtures.
+- [x] Test dashboard median and buckets on known fixtures.
 - [x] Test employee API validation failures.
 - [x] Test employee API success response shapes.
 - [ ] Test CSV export filters.
@@ -157,8 +157,8 @@
 
 ## 9. Performance And Polish
 
-- [ ] Verify directory response under 150 ms on 10,000 rows.
-- [ ] Verify dashboard response under 300 ms on 10,000 rows.
+- [x] Verify directory response under 150 ms on 10,000 rows.
+- [x] Verify dashboard response under 300 ms on 10,000 rows.
 - [ ] Run `EXPLAIN` on key queries.
 - [ ] Tune indexes if needed.
 - [ ] Review UI for HR manager usability.

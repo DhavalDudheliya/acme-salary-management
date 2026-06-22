@@ -65,10 +65,10 @@
 - [x] Add Prisma schema.
 - [x] Add first migration.
 - [x] Add Prisma client helper.
-- [ ] Add typed application errors.
-- [ ] Add request validation helpers.
-- [ ] Add service unit test setup.
-- [ ] Add API integration test setup.
+- [x] Add typed application errors.
+- [x] Add request validation helpers.
+- [x] Add service unit test setup.
+- [x] Add API integration test setup.
 
 ## 4. Data Layer
 
@@ -90,11 +90,11 @@
 
 ## 5. Backend API
 
-- [ ] Implement `GET /api/employees`.
-- [ ] Implement directory pagination.
-- [ ] Implement directory search.
-- [ ] Implement country, department, and status filters.
-- [ ] Implement directory sorting.
+- [x] Implement `GET /api/employees`.
+- [x] Implement directory pagination.
+- [x] Implement directory search.
+- [x] Implement country, department, and status filters.
+- [x] Implement directory sorting.
 - [ ] Implement `GET /api/employees/:id`.
 - [ ] Implement `POST /api/employees`.
 - [ ] Implement `PATCH /api/employees/:id`.
@@ -117,11 +117,11 @@
 - [ ] Test salary-change atomicity.
 - [ ] Test salary-history immutability.
 - [ ] Test FX normalization math.
-- [ ] Test pagination edges.
-- [ ] Test filter and sort query building.
+- [x] Test pagination edges.
+- [x] Test filter and sort query building.
 - [ ] Test dashboard median and buckets on known fixtures.
-- [ ] Test employee API validation failures.
-- [ ] Test employee API success response shapes.
+- [x] Test employee API validation failures.
+- [x] Test employee API success response shapes.
 - [ ] Test CSV export filters.
 
 ## 7. Frontend Features

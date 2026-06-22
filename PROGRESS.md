@@ -80,13 +80,13 @@
 - [x] Add salary history indexes.
 - [x] Add current salary relationship.
 - [x] Add migration.
-- [ ] Add deterministic seeded random helper.
-- [ ] Add 10,000 employee seed script.
-- [ ] Seed realistic countries, departments, currencies, and salaries.
-- [ ] Seed 1-4 salary records per employee.
-- [ ] Seed FX rates.
+- [x] Add deterministic seeded random helper.
+- [x] Add 10,000 employee seed script.
+- [x] Seed realistic countries, departments, currencies, and salaries.
+- [x] Seed 1-4 salary records per employee.
+- [x] Seed FX rates.
 - [x] Verify migration flow.
-- [ ] Verify seed flow.
+- [x] Verify seed flow.
 
 ## 5. Backend API
 

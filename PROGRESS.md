@@ -102,8 +102,8 @@
 - [x] Implement `POST /api/employees/:id/salary`.
 - [x] Ensure salary changes are transactional.
 - [x] Ensure salary records are append-only.
-- [ ] Implement `GET /api/fx-rates`.
-- [ ] Implement `PUT /api/fx-rates`.
+- [x] Implement `GET /api/fx-rates`.
+- [x] Implement `PUT /api/fx-rates`.
 - [ ] Implement `GET /api/dashboard`.
 - [ ] Implement median salary query.
 - [ ] Implement salary distribution buckets.

@@ -1,7 +1,7 @@
 import { Prisma } from '../../generated/prisma/client.js'
-import { NotFoundError } from '../../lib/errors.js'
+import { ConflictError, NotFoundError } from '../../lib/errors.js'
 import { prisma } from '../../lib/prisma.js'
-import type { EmployeeListQuery } from './employee.schemas.js'
+import type { CreateEmployeeInput, EmployeeListQuery } from './employee.schemas.js'
 
 /**
  * Employee directory service. Query construction is split into pure helpers
@@ -119,6 +119,73 @@ const detailSelect = {
 } satisfies Prisma.EmployeeSelect
 
 export type EmployeeDetail = Prisma.EmployeeGetPayload<{ select: typeof detailSelect }>
+
+/**
+ * The columns a Prisma unique-constraint (P2002) violation was on, or null if
+ * the error isn't one. Handles both the classic `meta.target` shape and the
+ * driver-adapter shape (`meta.driverAdapterError.cause.constraint.fields`) used
+ * by Prisma 7 + pg.
+ */
+function uniqueViolationFields(error: unknown): string[] | null {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2002') {
+    return null
+  }
+
+  const meta = error.meta as
+    | {
+        target?: string[] | string
+        driverAdapterError?: { cause?: { constraint?: { fields?: string[] } } }
+      }
+    | undefined
+
+  const driverFields = meta?.driverAdapterError?.cause?.constraint?.fields
+  if (Array.isArray(driverFields)) {
+    return driverFields
+  }
+  if (Array.isArray(meta?.target)) {
+    return meta.target
+  }
+  return typeof meta?.target === 'string' ? [meta.target] : []
+}
+
+/**
+ * Create an employee together with their first salary record, atomically:
+ * insert the employee, insert the hire salary record, then point
+ * current_salary_id at it — all in one transaction so the pointer is never
+ * left dangling. Duplicate email surfaces as a 409.
+ */
+export async function createEmployee(input: CreateEmployeeInput): Promise<EmployeeDetail> {
+  const { salary, ...profile } = input
+  const effectiveDate = salary.effectiveDate ?? profile.hireDate
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const employee = await tx.employee.create({ data: profile })
+      const record = await tx.salaryRecord.create({
+        data: {
+          employeeId: employee.id,
+          amount: salary.amount.toFixed(2),
+          currency: profile.currency,
+          effectiveDate,
+          reason: salary.reason,
+        },
+      })
+      return tx.employee.update({
+        where: { id: employee.id },
+        data: { currentSalaryId: record.id },
+        select: detailSelect,
+      })
+    })
+  } catch (error) {
+    // Email is the only user-facing unique column, so any P2002 here is a
+    // duplicate email (current_salary_id is set to a fresh id and never clashes).
+    const fields = uniqueViolationFields(error)
+    if (fields && (fields.length === 0 || fields.includes('email'))) {
+      throw new ConflictError(`An employee with email "${profile.email}" already exists`)
+    }
+    throw error
+  }
+}
 
 /** Fetch one employee with their append-only salary history. Throws if absent. */
 export async function getEmployeeById(id: string): Promise<EmployeeDetail> {

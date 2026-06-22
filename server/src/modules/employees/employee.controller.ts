@@ -1,7 +1,12 @@
 import type { Request, Response } from 'express'
 
-import { employeeIdParamSchema, employeeListQuerySchema } from './employee.schemas.js'
 import {
+  createEmployeeSchema,
+  employeeIdParamSchema,
+  employeeListQuerySchema,
+} from './employee.schemas.js'
+import {
+  createEmployee,
   getEmployeeById,
   listEmployees,
   type EmployeeDetail,
@@ -64,4 +69,11 @@ export async function getEmployee(request: Request, response: Response) {
   const employee = await getEmployeeById(id)
 
   response.json(serializeDetail(employee))
+}
+
+export async function postEmployee(request: Request, response: Response) {
+  const input = createEmployeeSchema.parse(request.body)
+  const employee = await createEmployee(input)
+
+  response.status(201).json(serializeDetail(employee))
 }

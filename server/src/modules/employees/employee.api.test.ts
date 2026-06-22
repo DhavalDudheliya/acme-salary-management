@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createApp } from '../../app.js'
 import { prisma } from '../../lib/prisma.js'
@@ -118,5 +118,68 @@ describe('GET /api/employees/:id', () => {
   it('rejects a malformed id with 400', async () => {
     const res = await request(app).get('/api/employees/not-a-uuid')
     expect(res.status).toBe(400)
+  })
+})
+
+describe('POST /api/employees', () => {
+  const TEST_EMAIL = 'integration.create@acme.example'
+
+  const newEmployee = {
+    firstName: 'Integration',
+    lastName: 'Create',
+    email: 'Integration.Create@acme.example',
+    country: 'Spain',
+    department: 'Engineering',
+    jobTitle: 'Senior Software Engineer',
+    currency: 'eur',
+    hireDate: '2024-02-15',
+    salary: { amount: 72000 },
+  }
+
+  // Keep the seed deterministic: remove the test employee (and its FK-linked
+  // record) before and after each case.
+  async function removeTestEmployee() {
+    const existing = await prisma.employee.findUnique({ where: { email: TEST_EMAIL } })
+    if (!existing) return
+    await prisma.employee.update({ where: { id: existing.id }, data: { currentSalaryId: null } })
+    await prisma.salaryRecord.deleteMany({ where: { employeeId: existing.id } })
+    await prisma.employee.delete({ where: { id: existing.id } })
+  }
+
+  beforeEach(removeTestEmployee)
+  afterEach(removeTestEmployee)
+
+  it('creates an employee with the hire salary record and pointer set', async () => {
+    const res = await request(app).post('/api/employees').send(newEmployee)
+
+    expect(res.status).toBe(201)
+    expect(res.body.email).toBe(TEST_EMAIL) // normalized to lowercase
+    expect(res.body.currency).toBe('EUR')
+    expect(res.body.status).toBe('active')
+    expect(res.body.salaryHistory).toHaveLength(1)
+    expect(res.body.salaryHistory[0]).toMatchObject({
+      amount: '72000',
+      reason: 'hire',
+      effectiveDate: '2024-02-15',
+    })
+    expect(res.body.currentSalaryId).toBe(res.body.salaryHistory[0].id)
+  })
+
+  it('rejects a duplicate email with 409', async () => {
+    const first = await request(app).post('/api/employees').send(newEmployee)
+    expect(first.status).toBe(201)
+
+    const second = await request(app).post('/api/employees').send(newEmployee)
+    expect(second.status).toBe(409)
+    expect(second.body.error.code).toBe('conflict')
+  })
+
+  it('rejects an invalid body with 400', async () => {
+    const res = await request(app)
+      .post('/api/employees')
+      .send({ ...newEmployee, currency: 'EU', salary: { amount: -5 } })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('validation_error')
   })
 })

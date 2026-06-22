@@ -1,6 +1,62 @@
 import { describe, expect, it } from 'vitest'
 
-import { employeeIdParamSchema, employeeListQuerySchema } from './employee.schemas.js'
+import {
+  createEmployeeSchema,
+  employeeIdParamSchema,
+  employeeListQuerySchema,
+} from './employee.schemas.js'
+
+const validCreateInput = {
+  firstName: 'Test',
+  lastName: 'Person',
+  email: 'Test.Person@acme.example',
+  country: 'Spain',
+  department: 'Engineering',
+  jobTitle: 'Senior Software Engineer',
+  currency: 'eur',
+  hireDate: '2024-02-15',
+  salary: { amount: 72000 },
+}
+
+describe('createEmployeeSchema', () => {
+  it('normalizes email to lowercase and currency to uppercase', () => {
+    const parsed = createEmployeeSchema.parse(validCreateInput)
+    expect(parsed.email).toBe('test.person@acme.example')
+    expect(parsed.currency).toBe('EUR')
+  })
+
+  it('defaults status to active and the salary reason to hire', () => {
+    const parsed = createEmployeeSchema.parse(validCreateInput)
+    expect(parsed.status).toBe('active')
+    expect(parsed.salary.reason).toBe('hire')
+  })
+
+  it('parses hireDate into a UTC-midnight Date', () => {
+    const parsed = createEmployeeSchema.parse(validCreateInput)
+    expect(parsed.hireDate).toBeInstanceOf(Date)
+    expect(parsed.hireDate.toISOString()).toBe('2024-02-15T00:00:00.000Z')
+  })
+
+  it('rejects a non-ISO currency code', () => {
+    expect(createEmployeeSchema.safeParse({ ...validCreateInput, currency: 'EU' }).success).toBe(false)
+  })
+
+  it('rejects a non-positive salary amount', () => {
+    const input = { ...validCreateInput, salary: { amount: -5 } }
+    expect(createEmployeeSchema.safeParse(input).success).toBe(false)
+  })
+
+  it('rejects a salary effectiveDate before the hire date', () => {
+    const input = { ...validCreateInput, salary: { amount: 50000, effectiveDate: '2020-01-01' } }
+    const result = createEmployeeSchema.safeParse(input)
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0].path).toEqual(['salary', 'effectiveDate'])
+  })
+
+  it('rejects a malformed hire date', () => {
+    expect(createEmployeeSchema.safeParse({ ...validCreateInput, hireDate: '15-02-2024' }).success).toBe(false)
+  })
+})
 
 describe('employeeIdParamSchema', () => {
   it('accepts a valid uuid', () => {

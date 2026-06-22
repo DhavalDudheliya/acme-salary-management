@@ -29,6 +29,46 @@ export const employeeIdParamSchema = z.object({
   id: z.uuid(),
 })
 
+/** A `YYYY-MM-DD` calendar date, parsed to a UTC-midnight Date for DATE columns. */
+const isoDateString = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format')
+  .refine((value) => !Number.isNaN(Date.parse(value)), 'date is not a valid calendar date')
+  .transform((value) => new Date(`${value}T00:00:00.000Z`))
+
+const currencyCode = z
+  .string()
+  .trim()
+  .regex(/^[A-Za-z]{3}$/, 'currency must be a 3-letter ISO 4217 code')
+  .transform((value) => value.toUpperCase())
+
+/** Max amount that fits the salary column (numeric(14,2)). */
+const MAX_SALARY = 999_999_999_999.99
+
+export const createEmployeeSchema = z
+  .object({
+    firstName: z.string().trim().min(1).max(100),
+    lastName: z.string().trim().min(1).max(100),
+    email: z.email().max(254).transform((value) => value.toLowerCase()),
+    country: z.string().trim().min(1).max(100),
+    department: z.string().trim().min(1).max(100),
+    jobTitle: z.string().trim().min(1).max(150),
+    currency: currencyCode,
+    status: z.enum(['active', 'inactive']).default('active'),
+    hireDate: isoDateString,
+    salary: z.object({
+      amount: z.number().positive().max(MAX_SALARY),
+      effectiveDate: isoDateString.optional(),
+      reason: z.string().trim().min(1).max(100).default('hire'),
+    }),
+  })
+  .refine(
+    (data) => !data.salary.effectiveDate || data.salary.effectiveDate >= data.hireDate,
+    { message: 'salary effectiveDate cannot be before hireDate', path: ['salary', 'effectiveDate'] },
+  )
+
+export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>
+
 export const employeeListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(25),

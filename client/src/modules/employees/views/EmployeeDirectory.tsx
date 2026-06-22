@@ -1,4 +1,5 @@
 import { buildExportUrl } from '../api/employees-api'
+import { CreateEmployeeDialog } from '../components/CreateEmployeeDialog'
 import { DirectoryFilters } from '../components/DirectoryFilters'
 import { DirectoryPagination } from '../components/DirectoryPagination'
 import { DirectoryTable } from '../components/DirectoryTable'
@@ -25,13 +26,16 @@ export function EmployeeDirectory() {
       aria-labelledby="directory-heading"
       aria-busy={isFetching}
     >
-      <div className="border-b p-4">
-        <p className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
-          Employee directory
-        </p>
-        <h2 id="directory-heading" className="mt-1 text-xl font-semibold">
-          {data ? `${data.total.toLocaleString()} employees` : 'Employees'}
-        </h2>
+      <div className="flex items-center justify-between gap-4 border-b p-4">
+        <div>
+          <p className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
+            Employee directory
+          </p>
+          <h2 id="directory-heading" className="mt-1 text-xl font-semibold">
+            {data ? `${data.total.toLocaleString()} employees` : 'Employees'}
+          </h2>
+        </div>
+        <CreateEmployeeDialog />
       </div>
 
       <DirectoryFilters

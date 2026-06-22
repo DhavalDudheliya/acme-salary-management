@@ -52,7 +52,7 @@
 - [x] Wire React Router.
 - [x] Wire TanStack Query provider.
 - [x] Replace preview directory with API-backed table.
-- [ ] Add reusable form field wrappers if needed.
+- [x] Add reusable form field wrappers if needed.
 
 ## 3. Server Foundation
 
@@ -136,9 +136,9 @@
 - [x] Add CSV export action.
 - [x] Build employee detail page.
 - [x] Build salary history timeline.
-- [ ] Build create employee flow.
-- [ ] Build edit employee flow.
-- [ ] Build salary change flow.
+- [x] Build create employee flow.
+- [x] Build edit employee flow.
+- [x] Build salary change flow.
 - [ ] Build dashboard page.
 - [ ] Add dashboard KPI cards.
 - [ ] Add salary distribution chart.
@@ -151,7 +151,7 @@
 
 - [x] Test directory filtering interaction.
 - [x] Test directory pagination interaction.
-- [ ] Test salary change form.
+- [x] Test salary change form.
 - [ ] Test create employee validation.
 - [ ] Test FX rate editing.
 

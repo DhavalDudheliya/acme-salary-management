@@ -54,6 +54,9 @@ beforeEach(() => {
         },
       })
     }
+    if (url === '/fx-rates') {
+      return Promise.resolve({ data: { base: 'USD', rates: [{ currency: 'USD', rateToBase: '1', updatedAt: '' }] } })
+    }
     if (url === '/employees') {
       const params = config?.params ?? {}
       return Promise.resolve({

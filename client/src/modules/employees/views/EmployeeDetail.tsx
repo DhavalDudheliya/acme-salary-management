@@ -4,6 +4,9 @@ import type { ReactNode } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 
+import { DeactivateEmployeeDialog } from '../components/DeactivateEmployeeDialog'
+import { EditEmployeeDialog } from '../components/EditEmployeeDialog'
+import { SalaryChangeDialog } from '../components/SalaryChangeDialog'
 import { SalaryHistoryTimeline } from '../components/SalaryHistoryTimeline'
 import { useEmployee } from '../hooks/use-employee'
 import { formatDate, formatSalary } from '../utils/format'
@@ -70,6 +73,12 @@ export function EmployeeDetail({ id }: { id: string | undefined }) {
           {employee.status}
         </Badge>
       </header>
+
+      <div className="flex flex-wrap gap-2">
+        <SalaryChangeDialog employee={employee} />
+        <EditEmployeeDialog employee={employee} />
+        {employee.status === 'active' && <DeactivateEmployeeDialog employee={employee} />}
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
         <section className="bg-card text-card-foreground grid gap-5 rounded-lg border p-5">

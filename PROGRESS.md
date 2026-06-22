@@ -99,9 +99,9 @@
 - [x] Implement `POST /api/employees`.
 - [x] Implement `PATCH /api/employees/:id`.
 - [x] Implement `DELETE /api/employees/:id` as soft delete.
-- [ ] Implement `POST /api/employees/:id/salary`.
-- [ ] Ensure salary changes are transactional.
-- [ ] Ensure salary records are append-only.
+- [x] Implement `POST /api/employees/:id/salary`.
+- [x] Ensure salary changes are transactional.
+- [x] Ensure salary records are append-only.
 - [ ] Implement `GET /api/fx-rates`.
 - [ ] Implement `PUT /api/fx-rates`.
 - [ ] Implement `GET /api/dashboard`.
@@ -115,7 +115,7 @@
 ## 6. Backend Tests
 
 - [ ] Test salary-change atomicity.
-- [ ] Test salary-history immutability.
+- [x] Test salary-history immutability.
 - [ ] Test FX normalization math.
 - [x] Test pagination edges.
 - [x] Test filter and sort query building.

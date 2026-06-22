@@ -4,6 +4,7 @@ import {
   createEmployeeSchema,
   employeeIdParamSchema,
   employeeListQuerySchema,
+  salaryChangeSchema,
   updateEmployeeSchema,
 } from './employee.schemas.js'
 
@@ -75,6 +76,33 @@ describe('updateEmployeeSchema', () => {
 
   it('rejects an invalid status', () => {
     expect(updateEmployeeSchema.safeParse({ status: 'archived' }).success).toBe(false)
+  })
+})
+
+describe('salaryChangeSchema', () => {
+  it('parses amount, effectiveDate, and reason', () => {
+    const parsed = salaryChangeSchema.parse({
+      amount: 90000,
+      effectiveDate: '2025-06-01',
+      reason: 'merit increase',
+    })
+    expect(parsed.amount).toBe(90000)
+    expect(parsed.effectiveDate.toISOString()).toBe('2025-06-01T00:00:00.000Z')
+    expect(parsed.reason).toBe('merit increase')
+  })
+
+  it('requires an effective date', () => {
+    expect(salaryChangeSchema.safeParse({ amount: 90000, reason: 'raise' }).success).toBe(false)
+  })
+
+  it('requires a non-empty reason', () => {
+    const input = { amount: 90000, effectiveDate: '2025-06-01', reason: '' }
+    expect(salaryChangeSchema.safeParse(input).success).toBe(false)
+  })
+
+  it('rejects a non-positive amount', () => {
+    const input = { amount: 0, effectiveDate: '2025-06-01', reason: 'raise' }
+    expect(salaryChangeSchema.safeParse(input).success).toBe(false)
   })
 })
 

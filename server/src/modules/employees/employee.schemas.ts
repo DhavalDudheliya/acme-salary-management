@@ -93,6 +93,18 @@ export const updateEmployeeSchema = z
 
 export type UpdateEmployeeInput = z.infer<typeof updateEmployeeSchema>
 
+/**
+ * A salary change. Appends a new record to history; currency is not supplied —
+ * the record snapshots the employee's current pay currency.
+ */
+export const salaryChangeSchema = z.object({
+  amount: z.number().positive().max(MAX_SALARY),
+  effectiveDate: isoDateString,
+  reason: z.string().trim().min(1).max(100),
+})
+
+export type SalaryChangeInput = z.infer<typeof salaryChangeSchema>
+
 export const employeeListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(25),

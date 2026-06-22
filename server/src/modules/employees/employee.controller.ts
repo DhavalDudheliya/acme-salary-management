@@ -4,10 +4,12 @@ import {
   createEmployeeSchema,
   employeeIdParamSchema,
   employeeListQuerySchema,
+  salaryChangeSchema,
   updateEmployeeSchema,
 } from './employee.schemas.js'
 import {
   createEmployee,
+  createSalaryChange,
   deactivateEmployee,
   getEmployeeById,
   listEmployees,
@@ -94,4 +96,12 @@ export async function deleteEmployee(request: Request, response: Response) {
   const employee = await deactivateEmployee(id)
 
   response.json(serializeDetail(employee))
+}
+
+export async function postSalaryChange(request: Request, response: Response) {
+  const { id } = employeeIdParamSchema.parse(request.params)
+  const input = salaryChangeSchema.parse(request.body)
+  const employee = await createSalaryChange(id, input)
+
+  response.status(201).json(serializeDetail(employee))
 }

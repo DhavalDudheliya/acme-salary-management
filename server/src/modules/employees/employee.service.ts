@@ -4,6 +4,7 @@ import { prisma } from '../../lib/prisma.js'
 import type {
   CreateEmployeeInput,
   EmployeeListQuery,
+  SalaryChangeInput,
   UpdateEmployeeInput,
 } from './employee.schemas.js'
 
@@ -231,6 +232,53 @@ export async function deactivateEmployee(id: string): Promise<EmployeeDetail> {
     }
     throw error
   }
+}
+
+/**
+ * Record a salary change for an employee. In one transaction: INSERT a new
+ * salary record (snapshotting the employee's pay currency), then repoint
+ * current_salary_id at whichever record has the latest effective date — so a
+ * back-dated correction is preserved in history without wrongly becoming the
+ * current salary. Existing records are never updated or deleted (append-only).
+ * 404 if the employee is absent.
+ */
+export async function createSalaryChange(
+  id: string,
+  input: SalaryChangeInput,
+): Promise<EmployeeDetail> {
+  return prisma.$transaction(async (tx) => {
+    const employee = await tx.employee.findUnique({
+      where: { id },
+      select: { id: true, currency: true },
+    })
+    if (!employee) {
+      throw new NotFoundError(`Employee ${id} not found`)
+    }
+
+    await tx.salaryRecord.create({
+      data: {
+        employeeId: id,
+        amount: input.amount.toFixed(2),
+        currency: employee.currency,
+        effectiveDate: input.effectiveDate,
+        reason: input.reason,
+      },
+    })
+
+    // The "current" salary is the record with the latest effective date
+    // (newest created_at breaks ties), which may not be the one just inserted.
+    const current = await tx.salaryRecord.findFirst({
+      where: { employeeId: id },
+      orderBy: [{ effectiveDate: 'desc' }, { createdAt: 'desc' }],
+      select: { id: true },
+    })
+
+    return tx.employee.update({
+      where: { id },
+      data: { currentSalaryId: current!.id },
+      select: detailSelect,
+    })
+  })
 }
 
 /** Fetch one employee with their append-only salary history. Throws if absent. */

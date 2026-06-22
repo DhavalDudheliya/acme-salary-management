@@ -316,3 +316,88 @@ describe('DELETE /api/employees/:id', () => {
     expect(res.status).toBe(400)
   })
 })
+
+describe('POST /api/employees/:id/salary', () => {
+  const TEST_EMAIL = 'integration.salary@acme.example'
+
+  const fixture = {
+    firstName: 'Integration',
+    lastName: 'Salary',
+    email: TEST_EMAIL,
+    country: 'Spain',
+    department: 'Engineering',
+    jobTitle: 'Engineer',
+    currency: 'eur',
+    hireDate: '2024-02-15',
+    salary: { amount: 80000 },
+  }
+
+  let id: string
+
+  beforeEach(async () => {
+    await deleteEmployeeByEmail(TEST_EMAIL)
+    const created = await request(app).post('/api/employees').send(fixture)
+    id = created.body.id
+  })
+  afterEach(() => deleteEmployeeByEmail(TEST_EMAIL))
+
+  it('appends a raise, makes it current, and snapshots the pay currency', async () => {
+    const res = await request(app)
+      .post(`/api/employees/${id}/salary`)
+      .send({ amount: 90000, effectiveDate: '2025-06-01', reason: 'merit increase' })
+
+    expect(res.status).toBe(201)
+    expect(res.body.salaryHistory).toHaveLength(2)
+
+    const current = res.body.salaryHistory[0]
+    expect(current).toMatchObject({ amount: '90000', effectiveDate: '2025-06-01', currency: 'EUR' })
+    expect(res.body.currentSalaryId).toBe(current.id)
+
+    // Append-only: the original hire record is still present and unchanged.
+    expect(res.body.salaryHistory.some((r: { amount: string }) => r.amount === '80000')).toBe(true)
+  })
+
+  it('keeps a back-dated change in history without making it current', async () => {
+    await request(app)
+      .post(`/api/employees/${id}/salary`)
+      .send({ amount: 90000, effectiveDate: '2025-06-01', reason: 'merit increase' })
+
+    const res = await request(app)
+      .post(`/api/employees/${id}/salary`)
+      .send({ amount: 70000, effectiveDate: '2024-08-01', reason: 'adjustment' })
+
+    expect(res.status).toBe(201)
+    expect(res.body.salaryHistory).toHaveLength(3)
+
+    // Current remains the latest-effective record, not the back-dated one.
+    const current = res.body.salaryHistory[0]
+    expect(current).toMatchObject({ amount: '90000', effectiveDate: '2025-06-01' })
+    expect(res.body.currentSalaryId).toBe(current.id)
+  })
+
+  it('returns 404 for a valid but absent employee', async () => {
+    const res = await request(app)
+      .post('/api/employees/00000000-0000-4000-8000-000000000000/salary')
+      .send({ amount: 90000, effectiveDate: '2025-06-01', reason: 'raise' })
+
+    expect(res.status).toBe(404)
+    expect(res.body.error.code).toBe('not_found')
+  })
+
+  it('rejects a body missing the effective date with 400', async () => {
+    const res = await request(app)
+      .post(`/api/employees/${id}/salary`)
+      .send({ amount: 90000, reason: 'raise' })
+
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('validation_error')
+  })
+
+  it('rejects a malformed id with 400', async () => {
+    const res = await request(app)
+      .post('/api/employees/not-a-uuid/salary')
+      .send({ amount: 90000, effectiveDate: '2025-06-01', reason: 'raise' })
+
+    expect(res.status).toBe(400)
+  })
+})

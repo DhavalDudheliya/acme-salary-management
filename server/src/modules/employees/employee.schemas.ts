@@ -116,3 +116,14 @@ export const employeeListQuerySchema = z.object({
 })
 
 export type EmployeeListQuery = z.infer<typeof employeeListQuerySchema>
+
+/** Same filters/sort as the directory, but no pagination — export the whole filtered set. */
+export const employeeExportQuerySchema = z.object({
+  q: z.string().trim().min(1).max(100).optional(),
+  country: z.string().trim().min(1).optional(),
+  department: z.string().trim().min(1).optional(),
+  status: z.enum(['active', 'inactive']).optional(),
+  sort: sortToken.optional(),
+})
+
+export type EmployeeExportQuery = z.infer<typeof employeeExportQuerySchema>

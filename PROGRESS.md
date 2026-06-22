@@ -109,8 +109,8 @@
 - [x] Implement salary distribution buckets.
 - [x] Implement country and department breakdowns.
 - [x] Implement recent salary changes.
-- [ ] Implement `GET /api/employees/export`.
-- [ ] Stream CSV export.
+- [x] Implement `GET /api/employees/export`.
+- [x] Stream CSV export.
 
 ## 6. Backend Tests
 
@@ -122,7 +122,7 @@
 - [x] Test dashboard median and buckets on known fixtures.
 - [x] Test employee API validation failures.
 - [x] Test employee API success response shapes.
-- [ ] Test CSV export filters.
+- [x] Test CSV export filters.
 
 ## 7. Frontend Features
 

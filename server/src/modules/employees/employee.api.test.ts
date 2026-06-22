@@ -317,6 +317,53 @@ describe('DELETE /api/employees/:id', () => {
   })
 })
 
+describe('GET /api/employees/export', () => {
+  const HEADER =
+    'id,firstName,lastName,email,country,department,jobTitle,currency,status,hireDate,' +
+    'currentSalaryAmount,currentSalaryCurrency,currentSalaryEffectiveDate'
+
+  function parseCsv(text: string) {
+    const lines = text.trim().split('\n')
+    const header = lines[0]
+    const columns = header.split(',')
+    // Seed fields contain no commas, so a naive split is safe here.
+    const rows = lines.slice(1).map((line) => {
+      const cells = line.split(',')
+      return Object.fromEntries(columns.map((c, i) => [c, cells[i]])) as Record<string, string>
+    })
+    return { header, rows }
+  }
+
+  it('streams a CSV download with the expected header and attachment disposition', async () => {
+    const res = await request(app).get('/api/employees/export')
+
+    expect(res.status).toBe(200)
+    expect(res.headers['content-type']).toContain('text/csv')
+    expect(res.headers['content-disposition']).toContain('attachment')
+
+    const { header, rows } = parseCsv(res.text)
+    expect(header).toBe(HEADER)
+    expect(rows.length).toBeGreaterThan(0)
+    expect(rows[0].currentSalaryAmount).not.toBe('')
+  })
+
+  it('applies the same filters as the directory', async () => {
+    const res = await request(app).get('/api/employees/export?country=Japan&status=active')
+    const { rows } = parseCsv(res.text)
+
+    expect(rows.length).toBeGreaterThan(0)
+    for (const row of rows) {
+      expect(row.country).toBe('Japan')
+      expect(row.status).toBe('active')
+    }
+  })
+
+  it('rejects an invalid sort with 400 before streaming', async () => {
+    const res = await request(app).get('/api/employees/export?sort=salary')
+    expect(res.status).toBe(400)
+  })
+})
+
 describe('POST /api/employees/:id/salary', () => {
   const TEST_EMAIL = 'integration.salary@acme.example'
 

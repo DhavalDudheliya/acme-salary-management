@@ -2,6 +2,7 @@ import { Router } from 'express'
 
 import {
   deleteEmployee,
+  exportEmployees,
   getEmployee,
   getEmployees,
   patchEmployee,
@@ -13,6 +14,8 @@ export const employeeRouter = Router()
 
 employeeRouter.get('/', getEmployees)
 employeeRouter.post('/', postEmployee)
+// Must precede '/:id' so "export" isn't parsed as an id.
+employeeRouter.get('/export', exportEmployees)
 employeeRouter.get('/:id', getEmployee)
 employeeRouter.patch('/:id', patchEmployee)
 employeeRouter.delete('/:id', deleteEmployee)

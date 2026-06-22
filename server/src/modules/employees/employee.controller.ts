@@ -1,7 +1,9 @@
 import type { Request, Response } from 'express'
+import { format } from 'fast-csv'
 
 import {
   createEmployeeSchema,
+  employeeExportQuerySchema,
   employeeIdParamSchema,
   employeeListQuerySchema,
   salaryChangeSchema,
@@ -13,7 +15,9 @@ import {
   deactivateEmployee,
   getEmployeeById,
   listEmployees,
+  streamEmployeeRows,
   updateEmployee,
+  type EmployeeCsvRow,
   type EmployeeDetail,
   type EmployeeListResult,
 } from './employee.service.js'
@@ -104,4 +108,28 @@ export async function postSalaryChange(request: Request, response: Response) {
   const employee = await createSalaryChange(id, input)
 
   response.status(201).json(serializeDetail(employee))
+}
+
+/** Write one row, awaiting drain when the stream's buffer is full (backpressure). */
+function writeRow(stream: ReturnType<typeof format>, row: EmployeeCsvRow): Promise<void> {
+  if (stream.write(row)) {
+    return Promise.resolve()
+  }
+  return new Promise((resolve) => stream.once('drain', resolve))
+}
+
+export async function exportEmployees(request: Request, response: Response) {
+  // Validate before any bytes are sent so a bad query is still a clean 400.
+  const query = employeeExportQuerySchema.parse(request.query)
+
+  response.setHeader('Content-Type', 'text/csv; charset=utf-8')
+  response.setHeader('Content-Disposition', 'attachment; filename="employees.csv"')
+
+  const csv = format({ headers: true })
+  csv.pipe(response)
+
+  for await (const row of streamEmployeeRows(query)) {
+    await writeRow(csv, row)
+  }
+  csv.end()
 }

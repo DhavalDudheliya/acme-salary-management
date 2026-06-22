@@ -3,6 +3,7 @@ import { ConflictError, NotFoundError } from '../../lib/errors.js'
 import { prisma } from '../../lib/prisma.js'
 import type {
   CreateEmployeeInput,
+  EmployeeExportQuery,
   EmployeeListQuery,
   SalaryChangeInput,
   UpdateEmployeeInput,
@@ -93,6 +94,86 @@ export interface EmployeeListResult {
   total: number
   page: number
   pageSize: number
+}
+
+/** Flat columns for the CSV export, including the denormalized current salary. */
+const exportSelect = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  country: true,
+  department: true,
+  jobTitle: true,
+  currency: true,
+  status: true,
+  hireDate: true,
+  currentSalary: { select: { amount: true, currency: true, effectiveDate: true } },
+} satisfies Prisma.EmployeeSelect
+
+export interface EmployeeCsvRow {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  country: string
+  department: string
+  jobTitle: string
+  currency: string
+  status: string
+  hireDate: string
+  currentSalaryAmount: string
+  currentSalaryCurrency: string
+  currentSalaryEffectiveDate: string
+}
+
+function toCsvRow(row: Prisma.EmployeeGetPayload<{ select: typeof exportSelect }>): EmployeeCsvRow {
+  return {
+    id: row.id,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    email: row.email,
+    country: row.country,
+    department: row.department,
+    jobTitle: row.jobTitle,
+    currency: row.currency,
+    status: row.status,
+    hireDate: row.hireDate.toISOString().slice(0, 10),
+    currentSalaryAmount: row.currentSalary?.amount.toString() ?? '',
+    currentSalaryCurrency: row.currentSalary?.currency ?? '',
+    currentSalaryEffectiveDate: row.currentSalary?.effectiveDate.toISOString().slice(0, 10) ?? '',
+  }
+}
+
+/**
+ * Stream the filtered directory as CSV rows, fetched in id-cursor batches so the
+ * whole result set never sits in memory at once. Reuses the directory's where /
+ * order-by; the id tiebreaker in the ordering makes the cursor stable.
+ */
+export async function* streamEmployeeRows(
+  query: EmployeeExportQuery,
+): AsyncGenerator<EmployeeCsvRow> {
+  const where = buildWhere(query)
+  const orderBy = buildOrderBy(query.sort)
+  const batchSize = 1000
+  let cursor: string | undefined
+
+  for (;;) {
+    const batch = await prisma.employee.findMany({
+      where,
+      orderBy,
+      take: batchSize,
+      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+      select: exportSelect,
+    })
+    if (batch.length === 0) break
+
+    for (const row of batch) {
+      yield toCsvRow(row)
+    }
+    if (batch.length < batchSize) break
+    cursor = batch[batch.length - 1].id
+  }
 }
 
 /** Full profile plus the complete, newest-first salary history for the detail view. */

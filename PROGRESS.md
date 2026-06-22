@@ -139,12 +139,12 @@
 - [x] Build create employee flow.
 - [x] Build edit employee flow.
 - [x] Build salary change flow.
-- [ ] Build dashboard page.
-- [ ] Add dashboard KPI cards.
-- [ ] Add salary distribution chart.
-- [ ] Add country breakdown chart.
-- [ ] Add department breakdown chart.
-- [ ] Add recent salary changes panel.
+- [x] Build dashboard page.
+- [x] Add dashboard KPI cards.
+- [x] Add salary distribution chart.
+- [x] Add country breakdown chart.
+- [x] Add department breakdown chart.
+- [x] Add recent salary changes panel.
 - [ ] Build FX rates settings page.
 
 ## 8. Frontend Tests

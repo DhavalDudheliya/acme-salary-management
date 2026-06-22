@@ -69,6 +69,30 @@ export const createEmployeeSchema = z
 
 export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>
 
+/**
+ * Profile edit — all fields optional, but at least one required. Salary is
+ * never edited here (it is append-only via POST /:id/salary), and currency is
+ * intentionally excluded: changing pay currency implies a salary change, so it
+ * would desync an employee from their current salary record's snapshot.
+ */
+export const updateEmployeeSchema = z
+  .object({
+    firstName: z.string().trim().min(1).max(100),
+    lastName: z.string().trim().min(1).max(100),
+    email: z.email().max(254).transform((value) => value.toLowerCase()),
+    country: z.string().trim().min(1).max(100),
+    department: z.string().trim().min(1).max(100),
+    jobTitle: z.string().trim().min(1).max(150),
+    status: z.enum(['active', 'inactive']),
+    hireDate: isoDateString,
+  })
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'provide at least one field to update',
+  })
+
+export type UpdateEmployeeInput = z.infer<typeof updateEmployeeSchema>
+
 export const employeeListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(25),

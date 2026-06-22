@@ -4,6 +4,7 @@ import {
   createEmployeeSchema,
   employeeIdParamSchema,
   employeeListQuerySchema,
+  updateEmployeeSchema,
 } from './employee.schemas.js'
 
 const validCreateInput = {
@@ -55,6 +56,25 @@ describe('createEmployeeSchema', () => {
 
   it('rejects a malformed hire date', () => {
     expect(createEmployeeSchema.safeParse({ ...validCreateInput, hireDate: '15-02-2024' }).success).toBe(false)
+  })
+})
+
+describe('updateEmployeeSchema', () => {
+  it('accepts a partial update and normalizes email', () => {
+    const parsed = updateEmployeeSchema.parse({ department: 'Product', email: 'New.Email@acme.example' })
+    expect(parsed).toEqual({ department: 'Product', email: 'new.email@acme.example' })
+  })
+
+  it('rejects an empty update', () => {
+    expect(updateEmployeeSchema.safeParse({}).success).toBe(false)
+  })
+
+  it('strips salary, leaving nothing to update -> invalid', () => {
+    expect(updateEmployeeSchema.safeParse({ salary: { amount: 1 } }).success).toBe(false)
+  })
+
+  it('rejects an invalid status', () => {
+    expect(updateEmployeeSchema.safeParse({ status: 'archived' }).success).toBe(false)
   })
 })
 

@@ -1,7 +1,11 @@
 import { Prisma } from '../../generated/prisma/client.js'
 import { ConflictError, NotFoundError } from '../../lib/errors.js'
 import { prisma } from '../../lib/prisma.js'
-import type { CreateEmployeeInput, EmployeeListQuery } from './employee.schemas.js'
+import type {
+  CreateEmployeeInput,
+  EmployeeListQuery,
+  UpdateEmployeeInput,
+} from './employee.schemas.js'
 
 /**
  * Employee directory service. Query construction is split into pure helpers
@@ -182,6 +186,28 @@ export async function createEmployee(input: CreateEmployeeInput): Promise<Employ
     const fields = uniqueViolationFields(error)
     if (fields && (fields.length === 0 || fields.includes('email'))) {
       throw new ConflictError(`An employee with email "${profile.email}" already exists`)
+    }
+    throw error
+  }
+}
+
+/**
+ * Update an employee's profile fields (never salary). Maps a missing row to 404
+ * and a duplicate email to 409.
+ */
+export async function updateEmployee(
+  id: string,
+  input: UpdateEmployeeInput,
+): Promise<EmployeeDetail> {
+  try {
+    return await prisma.employee.update({ where: { id }, data: input, select: detailSelect })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      throw new NotFoundError(`Employee ${id} not found`)
+    }
+    const fields = uniqueViolationFields(error)
+    if (fields && (fields.length === 0 || fields.includes('email'))) {
+      throw new ConflictError(`An employee with email "${input.email}" already exists`)
     }
     throw error
   }

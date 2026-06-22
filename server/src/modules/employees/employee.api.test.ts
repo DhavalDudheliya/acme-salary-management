@@ -15,6 +15,18 @@ afterAll(async () => {
   await prisma.$disconnect()
 })
 
+/**
+ * Remove a test employee (and its FK-linked salary record) so write tests stay
+ * idempotent and leave the seed at exactly 10k.
+ */
+async function deleteEmployeeByEmail(email: string) {
+  const existing = await prisma.employee.findUnique({ where: { email } })
+  if (!existing) return
+  await prisma.employee.update({ where: { id: existing.id }, data: { currentSalaryId: null } })
+  await prisma.salaryRecord.deleteMany({ where: { employeeId: existing.id } })
+  await prisma.employee.delete({ where: { id: existing.id } })
+}
+
 describe('GET /api/employees', () => {
   it('returns a paginated envelope honoring the requested page size', async () => {
     const res = await request(app).get('/api/employees?pageSize=10')
@@ -136,18 +148,9 @@ describe('POST /api/employees', () => {
     salary: { amount: 72000 },
   }
 
-  // Keep the seed deterministic: remove the test employee (and its FK-linked
-  // record) before and after each case.
-  async function removeTestEmployee() {
-    const existing = await prisma.employee.findUnique({ where: { email: TEST_EMAIL } })
-    if (!existing) return
-    await prisma.employee.update({ where: { id: existing.id }, data: { currentSalaryId: null } })
-    await prisma.salaryRecord.deleteMany({ where: { employeeId: existing.id } })
-    await prisma.employee.delete({ where: { id: existing.id } })
-  }
-
-  beforeEach(removeTestEmployee)
-  afterEach(removeTestEmployee)
+  // Keep the seed deterministic before and after each case.
+  beforeEach(() => deleteEmployeeByEmail(TEST_EMAIL))
+  afterEach(() => deleteEmployeeByEmail(TEST_EMAIL))
 
   it('creates an employee with the hire salary record and pointer set', async () => {
     const res = await request(app).post('/api/employees').send(newEmployee)
@@ -181,5 +184,78 @@ describe('POST /api/employees', () => {
 
     expect(res.status).toBe(400)
     expect(res.body.error.code).toBe('validation_error')
+  })
+})
+
+describe('PATCH /api/employees/:id', () => {
+  const TEST_EMAIL = 'integration.update@acme.example'
+
+  const fixture = {
+    firstName: 'Integration',
+    lastName: 'Update',
+    email: TEST_EMAIL,
+    country: 'Spain',
+    department: 'Engineering',
+    jobTitle: 'Senior Software Engineer',
+    currency: 'eur',
+    hireDate: '2024-02-15',
+    salary: { amount: 80000 },
+  }
+
+  let id: string
+
+  // Patch a freshly created fixture (not a seed row) so nothing in the seed is mutated.
+  beforeEach(async () => {
+    await deleteEmployeeByEmail(TEST_EMAIL)
+    const created = await request(app).post('/api/employees').send(fixture)
+    id = created.body.id
+  })
+  afterEach(() => deleteEmployeeByEmail(TEST_EMAIL))
+
+  it('updates only the given profile fields and preserves salary history', async () => {
+    const res = await request(app)
+      .patch(`/api/employees/${id}`)
+      .send({ jobTitle: 'Principal Engineer', department: 'Product', status: 'inactive' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.jobTitle).toBe('Principal Engineer')
+    expect(res.body.department).toBe('Product')
+    expect(res.body.status).toBe('inactive')
+    expect(res.body.email).toBe(TEST_EMAIL) // untouched
+    expect(res.body.salaryHistory).toHaveLength(1)
+  })
+
+  it('rejects an empty body with 400', async () => {
+    const res = await request(app).patch(`/api/employees/${id}`).send({})
+    expect(res.status).toBe(400)
+    expect(res.body.error.code).toBe('validation_error')
+  })
+
+  it('ignores salary and rejects a salary-only patch with 400', async () => {
+    const res = await request(app).patch(`/api/employees/${id}`).send({ salary: { amount: 999 } })
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 409 when changing email to one already in use', async () => {
+    const existing = await request(app).get('/api/employees?pageSize=1')
+    const takenEmail = existing.body.rows[0].email
+
+    const res = await request(app).patch(`/api/employees/${id}`).send({ email: takenEmail })
+    expect(res.status).toBe(409)
+    expect(res.body.error.code).toBe('conflict')
+  })
+
+  it('returns 404 for a valid but absent id', async () => {
+    const res = await request(app)
+      .patch('/api/employees/00000000-0000-4000-8000-000000000000')
+      .send({ jobTitle: 'X' })
+
+    expect(res.status).toBe(404)
+    expect(res.body.error.code).toBe('not_found')
+  })
+
+  it('rejects a malformed id with 400', async () => {
+    const res = await request(app).patch('/api/employees/not-a-uuid').send({ jobTitle: 'X' })
+    expect(res.status).toBe(400)
   })
 })

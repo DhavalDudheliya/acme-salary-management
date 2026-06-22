@@ -4,11 +4,13 @@ import {
   createEmployeeSchema,
   employeeIdParamSchema,
   employeeListQuerySchema,
+  updateEmployeeSchema,
 } from './employee.schemas.js'
 import {
   createEmployee,
   getEmployeeById,
   listEmployees,
+  updateEmployee,
   type EmployeeDetail,
   type EmployeeListResult,
 } from './employee.service.js'
@@ -76,4 +78,12 @@ export async function postEmployee(request: Request, response: Response) {
   const employee = await createEmployee(input)
 
   response.status(201).json(serializeDetail(employee))
+}
+
+export async function patchEmployee(request: Request, response: Response) {
+  const { id } = employeeIdParamSchema.parse(request.params)
+  const input = updateEmployeeSchema.parse(request.body)
+  const employee = await updateEmployee(id, input)
+
+  response.json(serializeDetail(employee))
 }

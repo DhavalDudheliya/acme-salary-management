@@ -99,6 +99,8 @@ function nextSort(current: string | undefined, field: string): string | undefine
 }
 
 export function DirectoryTable({ data, sort, onSortChange, isLoading }: DirectoryTableProps) {
+  // TanStack Table returns non-memoizable functions by design; keep React Compiler off this hook.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() })
 
   return (

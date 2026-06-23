@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Download } from 'lucide-react'
 
-import { buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
 
 import type { DirectoryParams } from '../api/types'
 import type { DirectoryOptions } from '../hooks/use-directory-options'
@@ -109,13 +108,15 @@ export function DirectoryFilters({ params, options, onChange, exportUrl }: Direc
         </Select>
       </div>
 
-      <a
-        href={exportUrl}
-        className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'gap-2')}
+      <Button
+        render={<a href={exportUrl} />}
+        variant="outline"
+        size="lg"
+        className="gap-2"
       >
         <Download />
         Export CSV
-      </a>
+      </Button>
     </div>
   )
 }

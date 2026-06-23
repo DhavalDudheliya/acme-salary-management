@@ -114,7 +114,7 @@
 
 ## 6. Backend Tests
 
-- [ ] Test salary-change atomicity.
+- [x] Test salary-change atomicity.
 - [x] Test salary-history immutability.
 - [x] Test FX normalization math.
 - [x] Test pagination edges.

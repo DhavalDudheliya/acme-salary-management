@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Button } from '@/components/ui/button'
@@ -14,11 +14,18 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 import type { EmployeeDetail } from '../api/types'
 import { useUpdateEmployee, errorMessage } from '../hooks/use-employee-mutations'
 import { editEmployeeFormSchema, type EditEmployeeForm } from '../schemas/employee-form-schemas'
-import { FormField, formSelectClass } from './forms/FormField'
+import { FormField } from './forms/FormField'
 
 export function EditEmployeeDialog({ employee }: { employee: EmployeeDetail }) {
   const [open, setOpen] = useState(false)
@@ -36,6 +43,7 @@ export function EditEmployeeDialog({ employee }: { employee: EmployeeDetail }) {
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
@@ -93,10 +101,23 @@ export function EditEmployeeDialog({ employee }: { employee: EmployeeDetail }) {
           </FormField>
 
           <FormField label="Status" htmlFor="status" error={errors.status?.message}>
-            <select id="status" className={formSelectClass} {...register('status')}>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={(value) => value && field.onChange(value)}>
+                  <SelectTrigger id="status" className="h-9 w-full">
+                    <SelectValue>
+                      {(value: string) => value.charAt(0).toUpperCase() + value.slice(1)}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent align="start">
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </FormField>
 
           {mutation.isError && <p className="text-destructive text-sm">{errorMessage(mutation.error)}</p>}

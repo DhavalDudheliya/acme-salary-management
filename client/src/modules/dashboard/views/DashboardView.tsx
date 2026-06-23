@@ -1,5 +1,12 @@
 import { useSearchParams } from 'react-router-dom'
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useFxRates } from '@/modules/fx/hooks/use-fx-rates'
 
 import { BreakdownChart } from '../components/BreakdownChart'
@@ -7,9 +14,6 @@ import { DistributionChart } from '../components/DistributionChart'
 import { KpiCards } from '../components/KpiCards'
 import { RecentChangesPanel } from '../components/RecentChangesPanel'
 import { useDashboard } from '../hooks/use-dashboard'
-
-const selectClass =
-  'h-9 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
 
 export function DashboardView() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -25,21 +29,26 @@ export function DashboardView() {
           <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">How the organisation pays people.</p>
         </div>
-        <label className="grid gap-1 text-sm">
+        <div className="grid gap-1 text-sm">
           <span className="text-muted-foreground text-xs font-medium">Reporting currency</span>
-          <select
-            className={selectClass}
-            aria-label="Reporting currency"
+          <Select
             value={currency}
-            onChange={(event) => setSearchParams({ currency: event.target.value }, { replace: true })}
+            onValueChange={(value) => {
+              if (value) setSearchParams({ currency: value }, { replace: true })
+            }}
           >
-            {fx?.rates?.map((rate) => (
-              <option key={rate.currency} value={rate.currency}>
-                {rate.currency}
-              </option>
-            ))}
-          </select>
-        </label>
+            <SelectTrigger className="h-9 min-w-32" aria-label="Reporting currency">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent align="start">
+              {fx?.rates?.map((rate) => (
+                <SelectItem key={rate.currency} value={rate.currency}>
+                  {rate.currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </header>
 
       {isError ? (

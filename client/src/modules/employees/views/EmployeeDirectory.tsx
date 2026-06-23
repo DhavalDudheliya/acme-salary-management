@@ -22,7 +22,7 @@ export function EmployeeDirectory() {
 
   return (
     <section
-      className="bg-card text-card-foreground overflow-hidden rounded-lg border"
+      className="bg-card text-card-foreground flex min-h-0 flex-col overflow-hidden rounded-lg border"
       aria-labelledby="directory-heading"
       aria-busy={isFetching}
     >
@@ -51,12 +51,14 @@ export function EmployeeDirectory() {
         </p>
       ) : (
         <>
-          <DirectoryTable
-            data={data?.rows ?? []}
-            sort={params.sort}
-            onSortChange={(sort) => setParams({ sort })}
-            isLoading={isLoading}
-          />
+          <div className="min-h-0 flex-1">
+            <DirectoryTable
+              data={data?.rows ?? []}
+              sort={params.sort}
+              onSortChange={(sort) => setParams({ sort })}
+              isLoading={isLoading}
+            />
+          </div>
           <DirectoryPagination
             page={params.page}
             pageSize={params.pageSize}

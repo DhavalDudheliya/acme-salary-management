@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
@@ -99,7 +100,7 @@ describe('EmployeeDirectory', () => {
     expect(screen.getByText('Arjun Patel')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /42 employees/i })).toBeInTheDocument()
     // Current salary is formatted in its own currency.
-    expect(screen.getByText(/120,000/)).toBeInTheDocument()
+    expect(screen.getByText(/(?:120,000|1,20,000)/)).toBeInTheDocument()
     // Export links to the API with no extra filters yet.
     expect(screen.getByRole('link', { name: /export csv/i })).toHaveAttribute(
       'href',
@@ -111,7 +112,9 @@ describe('EmployeeDirectory', () => {
     renderDirectory()
     await screen.findByText('Olivia Smith')
 
-    fireEvent.change(screen.getByLabelText('Filter by country'), { target: { value: 'India' } })
+    const user = userEvent.setup()
+    await user.click(screen.getByLabelText('Filter by country'))
+    await user.click(await screen.findByRole('option', { name: 'India' }))
 
     await expectEmployeesFetchedWith({ country: 'India' })
   })

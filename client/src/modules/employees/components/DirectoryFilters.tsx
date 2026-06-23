@@ -3,14 +3,20 @@ import { Download } from 'lucide-react'
 
 import { buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 import type { DirectoryParams } from '../api/types'
 import type { DirectoryOptions } from '../hooks/use-directory-options'
 import { useDebouncedValue } from '../hooks/use-debounced-value'
 
-const selectClass =
-  'h-9 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50'
+const allValue = '__all__'
 
 interface DirectoryFiltersProps {
   params: DirectoryParams
@@ -44,44 +50,63 @@ export function DirectoryFilters({ params, options, onChange, exportUrl }: Direc
       />
 
       <div className="flex flex-1 flex-wrap items-center gap-3">
-        <select
-          className={selectClass}
-          aria-label="Filter by country"
-          value={params.country ?? ''}
-          onChange={(event) => onChange({ country: event.target.value || undefined })}
+        <Select
+          value={params.country ?? allValue}
+          onValueChange={(value) =>
+            onChange({ country: value === allValue || value === null ? undefined : value })
+          }
         >
-          <option value="">All countries</option>
-          {options?.countries.map((country) => (
-            <option key={country} value={country}>
-              {country}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="h-9 min-w-36" aria-label="Filter by country">
+            <SelectValue>{(value: string) => value === allValue ? 'All countries' : value}</SelectValue>
+          </SelectTrigger>
+          <SelectContent align="start">
+            <SelectItem value={allValue}>All countries</SelectItem>
+            {options?.countries.map((country) => (
+              <SelectItem key={country} value={country}>
+                {country}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <select
-          className={selectClass}
-          aria-label="Filter by department"
-          value={params.department ?? ''}
-          onChange={(event) => onChange({ department: event.target.value || undefined })}
+        <Select
+          value={params.department ?? allValue}
+          onValueChange={(value) =>
+            onChange({ department: value === allValue || value === null ? undefined : value })
+          }
         >
-          <option value="">All departments</option>
-          {options?.departments.map((department) => (
-            <option key={department} value={department}>
-              {department}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="h-9 min-w-42" aria-label="Filter by department">
+            <SelectValue>{(value: string) => value === allValue ? 'All departments' : value}</SelectValue>
+          </SelectTrigger>
+          <SelectContent align="start">
+            <SelectItem value={allValue}>All departments</SelectItem>
+            {options?.departments.map((department) => (
+              <SelectItem key={department} value={department}>
+                {department}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <select
-          className={selectClass}
-          aria-label="Filter by status"
-          value={params.status ?? ''}
-          onChange={(event) => onChange({ status: (event.target.value || undefined) as DirectoryParams['status'] })}
+        <Select
+          value={params.status ?? allValue}
+          onValueChange={(value) =>
+            onChange({
+              status: (value === allValue || value === null
+                ? undefined
+                : value) as DirectoryParams['status'],
+            })
+          }
         >
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
+          <SelectTrigger className="h-9 min-w-30" aria-label="Filter by status">
+            <SelectValue>{(value: string) => value === allValue ? 'All statuses' : value}</SelectValue>
+          </SelectTrigger>
+          <SelectContent align="start">
+            <SelectItem value={allValue}>All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <a

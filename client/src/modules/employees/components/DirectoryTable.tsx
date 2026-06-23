@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 import type { EmployeeRow } from '../api/types'
 import { formatSalary } from '../utils/format'
@@ -49,17 +50,37 @@ const columns: ColumnDef<EmployeeRow>[] = [
   {
     id: 'salary',
     header: 'Current salary',
-    cell: ({ row }) => formatSalary(row.original.currentSalary),
+    cell: ({ row }) => (
+      <span className="block min-w-32 text-right font-semibold tabular-nums">
+        {formatSalary(row.original.currentSalary)}
+      </span>
+    ),
   },
   {
     id: 'status',
     header: 'Status',
     meta: { sortField: 'status' },
-    cell: ({ row }) => (
-      <Badge variant={row.original.status === 'active' ? 'secondary' : 'outline'}>
-        {row.original.status}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const active = row.original.status === 'active'
+
+      return (
+        <Badge
+          variant="outline"
+          className={cn(
+            'gap-1.5 capitalize',
+            active
+              ? 'border-emerald-200 bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+              : 'border-red-200 bg-red-100 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300',
+          )}
+        >
+          <span
+            className={cn('size-1.5 rounded-full', active ? 'bg-emerald-500' : 'bg-red-500')}
+            aria-hidden="true"
+          />
+          {row.original.status}
+        </Badge>
+      )
+    },
   },
 ]
 
@@ -81,16 +102,21 @@ export function DirectoryTable({ data, sort, onSortChange, isLoading }: Director
   const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() })
 
   return (
-    <Table>
-      <TableHeader>
+    <Table containerClassName="h-full overflow-auto">
+      <TableHeader className="bg-card sticky top-0 z-10">
         {table.getHeaderGroups().map((group) => (
           <TableRow key={group.id}>
             {group.headers.map((header) => {
               const field = header.column.columnDef.meta?.sortField
               const label = flexRender(header.column.columnDef.header, header.getContext())
+              const salaryHeader = header.column.id === 'salary'
 
               if (!field) {
-                return <TableHead key={header.id}>{label}</TableHead>
+                return (
+                  <TableHead key={header.id} className={salaryHeader ? 'text-right' : undefined}>
+                    {label}
+                  </TableHead>
+                )
               }
 
               const Icon = sort === field ? ArrowUp : sort === `-${field}` ? ArrowDown : ChevronsUpDown
@@ -122,7 +148,10 @@ export function DirectoryTable({ data, sort, onSortChange, isLoading }: Director
           table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell
+                  key={cell.id}
+                  className={cell.column.id === 'salary' ? 'text-right' : undefined}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

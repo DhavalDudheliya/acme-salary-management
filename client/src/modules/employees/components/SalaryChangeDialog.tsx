@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import {
   Dialog,
   DialogClose,
@@ -14,6 +15,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 import type { EmployeeDetail } from '../api/types'
 import { useChangeSalary, errorMessage } from '../hooks/use-employee-mutations'
@@ -22,12 +30,16 @@ import {
   type SalaryChangeForm,
   type SalaryChangeFormInput,
 } from '../schemas/employee-form-schemas'
-import { FormField, formSelectClass } from './forms/FormField'
+import { FormField } from './forms/FormField'
 
 const REASONS = ['merit increase', 'promotion', 'market adjustment', 'annual review', 'retention']
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
+}
+
+function titleCase(value: string): string {
+  return value.replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
 export function SalaryChangeDialog({ employee }: { employee: EmployeeDetail }) {
@@ -36,6 +48,7 @@ export function SalaryChangeDialog({ employee }: { employee: EmployeeDetail }) {
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
@@ -73,17 +86,39 @@ export function SalaryChangeDialog({ employee }: { employee: EmployeeDetail }) {
           </FormField>
 
           <FormField label="Effective date" htmlFor="effectiveDate" error={errors.effectiveDate?.message}>
-            <Input id="effectiveDate" type="date" {...register('effectiveDate')} />
+            <Controller
+              name="effectiveDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  id="effectiveDate"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  aria-invalid={Boolean(errors.effectiveDate)}
+                />
+              )}
+            />
           </FormField>
 
           <FormField label="Reason" htmlFor="reason" error={errors.reason?.message}>
-            <select id="reason" className={formSelectClass} {...register('reason')}>
-              {REASONS.map((reason) => (
-                <option key={reason} value={reason} className="capitalize">
-                  {reason}
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="reason"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={(value) => value && field.onChange(value)}>
+                  <SelectTrigger id="reason" className="h-9 w-full">
+                    <SelectValue>{(value: string) => titleCase(value)}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent align="start">
+                    {REASONS.map((reason) => (
+                      <SelectItem key={reason} value={reason}>
+                        {titleCase(reason)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </FormField>
 
           {mutation.isError && <p className="text-destructive text-sm">{errorMessage(mutation.error)}</p>}

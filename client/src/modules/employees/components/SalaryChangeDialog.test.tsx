@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
 import { apiClient } from '@/api/client'
@@ -43,7 +44,9 @@ describe('SalaryChangeDialog', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Change salary' }))
 
     fireEvent.change(await screen.findByLabelText(/Amount \(EUR\)/), { target: { value: '90000' } })
-    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'promotion' } })
+    const user = userEvent.setup()
+    await user.click(screen.getByLabelText('Reason'))
+    await user.click(await screen.findByRole('option', { name: 'Promotion' }))
     fireEvent.click(screen.getByRole('button', { name: 'Save change' }))
 
     await waitFor(() => {

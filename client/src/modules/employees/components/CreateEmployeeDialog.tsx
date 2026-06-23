@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import {
   Dialog,
   DialogClose,
@@ -16,6 +17,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useFxRates } from '@/modules/fx/hooks/use-fx-rates'
 
 import { useCreateEmployee, errorMessage } from '../hooks/use-employee-mutations'
@@ -24,7 +32,7 @@ import {
   type CreateEmployeeForm,
   type CreateEmployeeFormInput,
 } from '../schemas/employee-form-schemas'
-import { FormField, formSelectClass } from './forms/FormField'
+import { FormField } from './forms/FormField'
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
@@ -38,18 +46,19 @@ export function CreateEmployeeDialog() {
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<CreateEmployeeFormInput, unknown, CreateEmployeeForm>({
     resolver: zodResolver(createEmployeeFormSchema),
-    defaultValues: { hireDate: today() },
+    defaultValues: { hireDate: today(), currency: '' },
   })
 
   function onOpenChange(next: boolean) {
     setOpen(next)
     if (!next) {
-      reset({ hireDate: today() })
+      reset({ hireDate: today(), currency: '' })
       mutation.reset()
     }
   }
@@ -105,19 +114,41 @@ export function CreateEmployeeDialog() {
 
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Pay currency" htmlFor="currency" error={errors.currency?.message}>
-              <select id="currency" className={formSelectClass} defaultValue="" {...register('currency')}>
-                <option value="" disabled>
-                  Select…
-                </option>
-                {fx?.rates?.map((rate) => (
-                  <option key={rate.currency} value={rate.currency}>
-                    {rate.currency}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="currency"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value || null}
+                    onValueChange={(value) => field.onChange(value ?? '')}
+                  >
+                    <SelectTrigger id="currency" className="h-9 w-full">
+                      <SelectValue placeholder="Select…" />
+                    </SelectTrigger>
+                    <SelectContent align="start">
+                      {fx?.rates?.map((rate) => (
+                        <SelectItem key={rate.currency} value={rate.currency}>
+                          {rate.currency}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </FormField>
             <FormField label="Hire date" htmlFor="hireDate" error={errors.hireDate?.message}>
-              <Input id="hireDate" type="date" {...register('hireDate')} />
+              <Controller
+                name="hireDate"
+                control={control}
+                render={({ field }) => (
+                  <DatePicker
+                    id="hireDate"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    aria-invalid={Boolean(errors.hireDate)}
+                  />
+                )}
+              />
             </FormField>
           </div>
 

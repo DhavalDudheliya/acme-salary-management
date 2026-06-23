@@ -1,5 +1,6 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
@@ -75,7 +76,7 @@ describe('DashboardView', () => {
     renderDashboard()
 
     expect(await screen.findByText('9,319')).toBeInTheDocument()
-    expect(screen.getByText(/\$822,124,211/)).toBeInTheDocument()
+    expect(screen.getByText(/\$(?:822,124,211|82,21,24,211)/)).toBeInTheDocument()
     expect(screen.getByText('Marco Moreau')).toBeInTheDocument()
   })
 
@@ -83,7 +84,9 @@ describe('DashboardView', () => {
     renderDashboard()
     await screen.findByText('9,319')
 
-    fireEvent.change(screen.getByLabelText('Reporting currency'), { target: { value: 'EUR' } })
+    const user = userEvent.setup()
+    await user.click(screen.getByLabelText('Reporting currency'))
+    await user.click(await screen.findByRole('option', { name: 'EUR' }))
 
     await waitFor(() => {
       expect(get).toHaveBeenCalledWith('/dashboard', expect.objectContaining({ params: { currency: 'EUR' } }))

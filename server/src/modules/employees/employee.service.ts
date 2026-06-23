@@ -322,16 +322,22 @@ export async function deactivateEmployee(id: string): Promise<EmployeeDetail> {
  * back-dated correction is preserved in history without wrongly becoming the
  * current salary. Existing records are never updated or deleted (append-only).
  * 404 if the employee is absent.
+ *
+ * The employee row is locked `FOR UPDATE` up front. Without it, two concurrent
+ * changes to the same employee deadlock — each INSERT takes a FOR KEY SHARE lock
+ * on the employee row (FK enforcement) and then neither can upgrade to the
+ * exclusive lock the pointer UPDATE needs. Locking first serializes same-employee
+ * changes cleanly (and makes the latest-effective lookup see a consistent view);
+ * changes to different employees still run concurrently.
  */
 export async function createSalaryChange(
   id: string,
   input: SalaryChangeInput,
 ): Promise<EmployeeDetail> {
   return prisma.$transaction(async (tx) => {
-    const employee = await tx.employee.findUnique({
-      where: { id },
-      select: { id: true, currency: true },
-    })
+    const [employee] = await tx.$queryRaw<{ id: string; currency: string }[]>`
+      SELECT id, currency FROM employees WHERE id = ${id}::uuid FOR UPDATE
+    `
     if (!employee) {
       throw new NotFoundError(`Employee ${id} not found`)
     }

@@ -145,7 +145,7 @@
 - [x] Add country breakdown chart.
 - [x] Add department breakdown chart.
 - [x] Add recent salary changes panel.
-- [ ] Build FX rates settings page.
+- [x] Build FX rates settings page.
 
 ## 8. Frontend Tests
 
@@ -153,7 +153,7 @@
 - [x] Test directory pagination interaction.
 - [x] Test salary change form.
 - [ ] Test create employee validation.
-- [ ] Test FX rate editing.
+- [x] Test FX rate editing.
 
 ## 9. Performance And Polish
 

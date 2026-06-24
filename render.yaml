@@ -19,8 +19,10 @@ services:
     # Render sets NODE_ENV=production, which would skip devDependencies; the
     # build needs tsc + the Prisma CLI, so force them in.
     buildCommand: npm install --include=dev && npm run build
-    # Apply migrations against the managed DB at boot, then start the server.
-    startCommand: npx prisma migrate deploy && npm run start
+    # On boot: apply migrations, then seed (idempotent — skips if employees
+    # already exist, so no shell is needed and redeploys don't wipe data),
+    # then start the server.
+    startCommand: npx prisma migrate deploy && npm run seed && npm run start
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
@@ -36,10 +38,13 @@ services:
     buildCommand: npm install --include=dev && npm run build
     staticPublishPath: dist
     envVars:
-      # Vite bakes this in at build time. Set it to the API service's public
-      # URL + /api, then redeploy this static site. (See DEPLOYMENT.md.)
+      # Vite bakes this in at build time. There is NO safe default: the API's
+      # onrender.com subdomain is assigned per account and the plain name may be
+      # taken globally (a wrong guess points the SPA at a stranger's service).
+      # Set this to your API service's real public URL + /api in the dashboard,
+      # then redeploy this static site. (See DEPLOYMENT.md.)
       - key: VITE_API_BASE_URL
-        value: https://acme-salary-api.onrender.com/api
+        sync: false
     routes:
       # SPA fallback so client-side routes (e.g. /employees/:id) resolve.
       - type: rewrite

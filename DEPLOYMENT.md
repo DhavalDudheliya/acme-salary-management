@@ -8,25 +8,28 @@ three are described in [`render.yaml`](render.yaml) as a Render Blueprint.
 
 1. **Create the Blueprint.** In the Render dashboard: **New → Blueprint**, connect
    this repository, and apply. Render provisions the database and both services
-   from `render.yaml`. The API gets `DATABASE_URL` wired from the database
-   automatically and runs `prisma migrate deploy` on boot.
+   from `render.yaml`. The API gets `DATABASE_URL` wired automatically, and on
+   boot it runs `prisma migrate deploy` (creates the schema) and `npm run seed`
+   (loads the 10,000-employee dataset). **No shell is needed** — the seed is
+   idempotent and skips itself once the data exists, so redeploys don't wipe it.
 
-2. **Point the SPA at the API.** The API's public URL is
-   `https://acme-salary-api.onrender.com` (Render derives it from the service
-   name; confirm the exact host on the API service page). The SPA bakes
-   `VITE_API_BASE_URL` in **at build time**, so:
-   - If the API host matches the default in `render.yaml`, you're done.
-   - Otherwise set `VITE_API_BASE_URL` to `https://<your-api-host>/api` on the
-     `acme-salary-web` service and **redeploy** it.
+2. **Point the SPA at the *real* API URL.** This is the step that bites people.
+   The SPA bakes `VITE_API_BASE_URL` in **at build time**, and `render.yaml`
+   intentionally has **no default** for it:
+   - Open the **`acme-salary-api`** service in the dashboard and copy its actual
+     public URL from the top of the page. It is usually **not** the bare
+     `https://acme-salary-api.onrender.com` — that subdomain is global and often
+     already taken, so Render assigns yours a suffix
+     (e.g. `https://acme-salary-api-x7k2.onrender.com`).
+   - Verify it's yours: `https://<that-host>/api/health` must return
+     `{"status":"ok"}`. (A `401 {"error":"unauthorized"}` means you're hitting
+     someone else's service — you have the wrong host.)
+   - Set `VITE_API_BASE_URL` to `https://<that-host>/api` on the
+     **`acme-salary-web`** service, then **redeploy** it (env changes only take
+     effect on a fresh build).
 
-3. **Seed the database once.** Open the **Shell** on the `acme-salary-api`
-   service and run:
-   ```sh
-   npm run seed
-   ```
-   This loads the deterministic 10,000-employee dataset. It is **not** part of the
-   build, so ordinary redeploys don't wipe the data. (The seed `TRUNCATE`s and
-   reloads, so re-running it resets to the same baseline.)
+> To reseed from scratch later, set `SEED_FORCE=1` on the API service and
+> redeploy; remove it afterward so normal restarts don't reload.
 
 ## Verify
 

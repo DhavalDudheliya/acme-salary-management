@@ -196,6 +196,17 @@ function fxRates() {
 }
 
 async function main() {
+  // Idempotent by default so the seed can run on every deploy/boot without
+  // wiping data: skip when employees already exist. Set SEED_FORCE=1 to reseed
+  // (TRUNCATE + reload) regardless — e.g. locally to reset to the baseline.
+  if (process.env.SEED_FORCE !== '1') {
+    const existing = await prisma.employee.count()
+    if (existing > 0) {
+      console.log(`Seed skipped: ${existing.toLocaleString()} employees already present (set SEED_FORCE=1 to reseed).`)
+      return
+    }
+  }
+
   console.time('seed')
   console.log(`Generating ${EMPLOYEE_COUNT.toLocaleString()} employees (seed=${RNG_SEED})...`)
   const { employees, salaries, pointers } = generate()

@@ -1,0 +1,47 @@
+# Render Blueprint: managed Postgres + Express API + static React SPA.
+# Create from the Render dashboard: New > Blueprint, point it at this repo.
+# See DEPLOYMENT.md for the full walkthrough (and the two manual steps:
+# setting the SPA's API URL, and seeding the database once).
+
+databases:
+  - name: acme-salary-db
+    databaseName: acme_salary_management
+    user: acme
+    plan: free
+
+services:
+  # --- Express + Prisma API -------------------------------------------------
+  - type: web
+    name: acme-salary-api
+    runtime: node
+    plan: free
+    rootDir: server
+    # Render sets NODE_ENV=production, which would skip devDependencies; the
+    # build needs tsc + the Prisma CLI, so force them in.
+    buildCommand: npm install --include=dev && npm run build
+    # Apply migrations against the managed DB at boot, then start the server.
+    startCommand: npx prisma migrate deploy && npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: acme-salary-db
+          property: connectionString
+
+  # --- React (Vite) static SPA ---------------------------------------------
+  - type: web
+    name: acme-salary-web
+    runtime: static
+    rootDir: client
+    buildCommand: npm install --include=dev && npm run build
+    staticPublishPath: dist
+    envVars:
+      # Vite bakes this in at build time. Set it to the API service's public
+      # URL + /api, then redeploy this static site. (See DEPLOYMENT.md.)
+      - key: VITE_API_BASE_URL
+        value: https://acme-salary-api.onrender.com/api
+    routes:
+      # SPA fallback so client-side routes (e.g. /employees/:id) resolve.
+      - type: rewrite
+        source: /*
+        destination: /index.html

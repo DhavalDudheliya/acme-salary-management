@@ -159,25 +159,25 @@
 
 - [x] Verify directory response under 150 ms on 10,000 rows.
 - [x] Verify dashboard response under 300 ms on 10,000 rows.
-- [ ] Run `EXPLAIN` on key queries.
-- [ ] Tune indexes if needed.
+- [x] Run `EXPLAIN` on key queries.
+- [x] Tune indexes if needed. (Reviewed: existing indexes cover the hot paths; org-wide aggregates are intentionally scans — see `ARCHITECTURE.md` §6.)
 - [ ] Review UI for HR manager usability.
 - [ ] Verify responsive layouts.
-- [ ] Verify empty states.
-- [ ] Verify loading states.
-- [ ] Verify error states.
-- [ ] Finalize README quickstart.
-- [ ] Add AI usage notes.
+- [x] Verify empty states.
+- [x] Verify loading states.
+- [x] Verify error states.
+- [x] Finalize README quickstart.
+- [x] Add AI usage notes.
 - [ ] Prepare demo script.
 - [ ] Record demo video.
-- [ ] Deploy app.
+- [ ] Deploy app. (Render blueprint + guide ready in `render.yaml` / `DEPLOYMENT.md`; not yet executed.)
 
 ## 10. Final Verification
 
-- [ ] Run server tests.
-- [ ] Run client tests.
-- [ ] Run server build.
-- [ ] Run client build.
-- [ ] Run lint.
+- [x] Run server tests. (94 passing)
+- [x] Run client tests. (13 passing)
+- [x] Run server build.
+- [x] Run client build.
+- [x] Run lint. (client + server clean)
 - [ ] Fresh clone setup check.
-- [ ] Confirm git history is incremental and readable.
+- [x] Confirm git history is incremental and readable.

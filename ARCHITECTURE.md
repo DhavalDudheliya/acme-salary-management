@@ -105,6 +105,25 @@ created_at / updated_at
 - **TanStack Query** caching on the client removes redundant round-trips for revisited pages/filters.
 - Targets: directory/filter **< 150 ms**, dashboard **< 300 ms** server-side on 10k rows (from `REQUIREMENTS.md`).
 
+### Measured (`EXPLAIN ANALYZE`, 10k seed)
+
+Comfortably inside the targets; the indexes carry the latency-critical paths.
+
+| Query | Plan | Time |
+| --- | --- | --- |
+| Directory, default sort, page 1 | Incremental sort on `(last_name, first_name)` index → PK join for current salary | ~1.2 ms |
+| Directory, `status + country` filter | `(last_name, first_name)` index drives sort; filter on the way | ~0.5 ms |
+| Directory count, `status + department` | Index-only scan on `(status, department)` (no heap fetches) | ~0.4 ms |
+| Dashboard summary incl. median (`percentile_cont`) | Hash joins + aggregate over the 9.3k active rows | ~18 ms |
+| Dashboard payroll-by-country / department | Hash aggregate, grouped | ~15 ms |
+| Recent salary changes (newest 10) | Index scan backward on `salary_records(created_at)` + memoized joins | ~1.4 ms |
+
+The dashboard's org-wide aggregates are deliberately sequential scans of the
+active set — at 10k rows that is ~15–18 ms, and the five queries run in parallel,
+so an index there would only slow writes without helping reads. The indexes that
+matter are on the directory's filter/sort/count columns and on
+`salary_records(created_at)` for the recent-changes feed.
+
 ## 7. Testing strategy
 
 - **Service-layer unit tests** (the bulk): business logic — salary-change atomicity, FX normalization math, filter/sort query building, pagination edges — tested without HTTP.
